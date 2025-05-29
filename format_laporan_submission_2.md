@@ -2,13 +2,19 @@
 
 ## Project Overview
 
-Dalam era digital saat ini, pengguna dihadapkan pada banjir informasi yang dapat menyebabkan kelelahan dalam pengambilan keputusan. Sistem rekomendasi muncul sebagai solusi penting untuk menyaring informasi dan memberikan saran yang relevan, sehingga meningkatkan pengalaman pengguna dan keterlibatan mereka. Menurut Fan et al. (2022), sistem rekomendasi membantu pengguna membuat keputusan yang tepat secara efektif dan efisien dengan memberikan saran yang dipersonalisasi dalam berbagai aspek kehidupan, terutama untuk layanan online yang berorientasi pada manusia seperti platform e-commerce dan media sosial. ([arXiv][1])
+Berikut adalah versi yang telah **direvisi secara lengkap** untuk bagian *Project Overview* kamu, dengan kutipan dalam teks yang **sesuai format IEEE**:
 
-Dalam industri hiburan, seperti layanan streaming film, sistem rekomendasi memainkan peran krusial dalam meningkatkan keterlibatan pengguna. Salunke dan Nichite (2022) menyatakan bahwa sistem rekomendasi dalam e-commerce menjadi semakin penting di dunia digital saat ini karena digunakan untuk mempersonalisasi pengalaman pengguna, membantu pelanggan menemukan apa yang mereka butuhkan dengan cepat dan efisien, serta meningkatkan pendapatan bisnis. ([arXiv][2])
+---
 
-Proyek ini bertujuan untuk membangun sistem rekomendasi film menggunakan dataset MovieLens 20M, yang berisi lebih dari 20 juta interaksi antara pengguna dan film. Dataset ini telah digunakan secara luas dalam penelitian sistem rekomendasi dan disediakan oleh GroupLens Research, University of Minnesota. Menurut Beel (2019), analisis empiris mengonfirmasi bahwa MovieLens adalah dataset standar de facto dalam penelitian sistem rekomendasi, dengan 40% dari makalah penuh dan pendek di Konferensi ACM RecSys 2017 dan 2018 menggunakan variasi dari dataset MovieLens. ([ISG Siegen][3])
+## Project Overview (Revisi Kutipan IEEE)
 
-Untuk mengatasi tantangan dalam memberikan rekomendasi yang relevan, proyek ini akan mengembangkan dua pendekatan utama:
+Dalam era digital saat ini, pengguna dihadapkan pada banjir informasi yang dapat menyebabkan kelelahan dalam pengambilan keputusan. Sistem rekomendasi muncul sebagai solusi penting untuk menyaring informasi dan memberikan saran yang relevan, sehingga meningkatkan pengalaman pengguna dan keterlibatan mereka. Fan *et al.* menyatakan bahwa sistem rekomendasi membantu pengguna membuat keputusan yang tepat secara efektif dan efisien dengan memberikan saran yang dipersonalisasi dalam berbagai aspek kehidupan, terutama untuk layanan online yang berorientasi pada manusia seperti platform e-commerce dan media sosial \[1].
+
+Dalam industri hiburan, seperti layanan streaming film, sistem rekomendasi memainkan peran krusial dalam meningkatkan keterlibatan pengguna. Menurut Salunke dan Nichite, sistem rekomendasi dalam e-commerce menjadi semakin penting karena digunakan untuk mempersonalisasi pengalaman pengguna, membantu pelanggan menemukan apa yang mereka butuhkan dengan cepat dan efisien, serta meningkatkan pendapatan bisnis \[2].
+
+Proyek ini bertujuan untuk membangun sistem rekomendasi film menggunakan dataset MovieLens 20M, yang berisi lebih dari 20 juta interaksi antara pengguna dan film. Dataset ini telah digunakan secara luas dalam penelitian sistem rekomendasi dan disediakan oleh GroupLens Research, University of Minnesota. Beel mengonfirmasi bahwa MovieLens merupakan dataset standar de facto dalam penelitian sistem rekomendasi, dengan sekitar 40% makalah di Konferensi ACM RecSys 2017 dan 2018 menggunakan variasi dataset tersebut \[3].
+
+Untuk mengatasi tantangan dalam memberikan rekomendasi yang relevan, proyek ini mengembangkan dua pendekatan utama:
 
 1. **Content-Based Filtering**: Menggunakan TF-IDF vectorization pada genre film dan menghitung cosine similarity antar film untuk menghasilkan rekomendasi berdasarkan kemiripan konten.
 
@@ -18,13 +24,13 @@ Dengan membandingkan performa kedua pendekatan ini, proyek ini bertujuan untuk m
 
 ---
 
-**Referensi:**
+### Referensi (IEEE Format)
 
-* Fan, W., Zhao, X., Chen, X., Su, J., Gao, J., Wang, L., Liu, Q., Wang, Y., Xu, H., Chen, L., & Li, Q. (2022). A Comprehensive Survey on Trustworthy Recommender Systems. *arXiv preprint arXiv:2209.10117*. [https://arxiv.org/abs/2209.10117](https://arxiv.org/abs/2209.10117)
+\[1] W. Fan, X. Zhao, X. Chen, J. Su, J. Gao, L. Wang, Q. Liu, Y. Wang, H. Xu, L. Chen, and Q. Li, “A comprehensive survey on trustworthy recommender systems,” *arXiv preprint*, arXiv:2209.10117, 2022. \[Online]. Available: [https://arxiv.org/abs/2209.10117](https://arxiv.org/abs/2209.10117)
 
-* Salunke, T., & Nichite, U. (2022). Recommender Systems in E-commerce. *arXiv preprint arXiv:2212.13910*. [https://arxiv.org/abs/2212.13910](https://arxiv.org/abs/2212.13910)
+\[2] T. Salunke and U. Nichite, “Recommender systems in e-commerce,” *arXiv preprint*, arXiv:2212.13910, 2022. \[Online]. Available: [https://arxiv.org/abs/2212.13910](https://arxiv.org/abs/2212.13910)
 
-* Beel, J. (2019). On The Popularity of Recommender-System Datasets. *ISG Siegen*. [https://isg.beel.org/blog/2019/08/03/and-the-winner-is-movielens-on-the-popularity-of-recommender-system-datasets/](https://isg.beel.org/blog/2019/08/03/and-the-winner-is-movielens-on-the-popularity-of-recommender-system-datasets/)
+\[3] J. Beel, “On the popularity of recommender-system datasets,” *ISG Siegen Blog*, Aug. 3, 2019. \[Online]. Available: [https://isg.beel.org/blog/2019/08/03/and-the-winner-is-movielens-on-the-popularity-of-recommender-system-datasets/](https://isg.beel.org/blog/2019/08/03/and-the-winner-is-movielens-on-the-popularity-of-recommender-system-datasets/)
 
 ---
 
