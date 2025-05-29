@@ -356,23 +356,16 @@ movies = movies.reset_index(drop=True)
 - Efisiensi Komputasi: Seluruh langkah ini bertujuan untuk meningkatkan efisiensi komputasi. Dengan membatasi jumlah film yang akan diolah untuk TF-IDF menjadi 5000, waktu pemrosesan dan kebutuhan memori akan jauh berkurang, memungkinkan eksplorasi dan pengembangan model yang lebih cepat. Namun, perlu diingat bahwa model yang dibangun dari sampel 5000 film mungkin tidak sepenuhnya merepresentasikan keseluruhan dataset film yang lebih besar. Hal ini perlu dipertimbangkan saat mengevaluasi kinerja dan generalisasi model.
 
 **Output Detail Film**
-```
-movieId	title	genres
-910	5218	Ice Age (2002)	Adventure Animation Children Comedy
-1517	44022	Ice Age 2: The Meltdown (2006)	Adventure Animation Children Comedy
-1919	69644	Ice Age: Dawn of the Dinosaurs (2009)	Action Adventure Animation Children Comedy Rom...
 
-```
+![Output Detail ](Output_Detail.png)
+
+Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
+
 **Output Rekomendasi Film**
-```
-	title	genres
-0	Horton Hears a Who! (2008)	Adventure Animation Children Comedy
-1	Wallace & Gromit in The Curse of the Were-Rabb...	Adventure Animation Children Comedy
-2	Ice Age 2: The Meltdown (2006)	Adventure Animation Children Comedy
-3	Over the Hedge (2006)	Adventure Animation Children Comedy
-4	Rio (2011)	Adventure Animation Children Comedy
 
-```
+![Output Rekomendasi](Output_Rekomendasi.png)
+
+Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
 
 ### Model Development dengan Collaborative Filtering
 
