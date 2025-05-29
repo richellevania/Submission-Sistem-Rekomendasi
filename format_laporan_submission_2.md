@@ -6,7 +6,7 @@ Berikut adalah versi yang telah **direvisi secara lengkap** untuk bagian *Projec
 
 ---
 
-## Project Overview (Revisi Kutipan IEEE)
+## Project Overview 
 
 Dalam era digital saat ini, pengguna dihadapkan pada banjir informasi yang dapat menyebabkan kelelahan dalam pengambilan keputusan. Sistem rekomendasi muncul sebagai solusi penting untuk menyaring informasi dan memberikan saran yang relevan, sehingga meningkatkan pengalaman pengguna dan keterlibatan mereka. Fan *et al.* menyatakan bahwa sistem rekomendasi membantu pengguna membuat keputusan yang tepat secara efektif dan efisien dengan memberikan saran yang dipersonalisasi dalam berbagai aspek kehidupan, terutama untuk layanan online yang berorientasi pada manusia seperti platform e-commerce dan media sosial \[1].
 
@@ -24,7 +24,7 @@ Dengan membandingkan performa kedua pendekatan ini, proyek ini bertujuan untuk m
 
 ---
 
-### Referensi (IEEE Format)
+### Referensi 
 
 \[1] W. Fan, X. Zhao, X. Chen, J. Su, J. Gao, L. Wang, Q. Liu, Y. Wang, H. Xu, L. Chen, and Q. Li, “A comprehensive survey on trustworthy recommender systems,” *arXiv preprint*, arXiv:2209.10117, 2022. \[Online]. Available: [https://arxiv.org/abs/2209.10117](https://arxiv.org/abs/2209.10117)
 
