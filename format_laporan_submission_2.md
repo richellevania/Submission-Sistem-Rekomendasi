@@ -1,9 +1,5 @@
 # Laporan Proyek Machine Learning - MC172D5X1392 Richelle Vania Thionanda
 
-## Project Overview
-
-Berikut adalah versi yang telah **direvisi secara lengkap** untuk bagian *Project Overview* kamu, dengan kutipan dalam teks yang **sesuai format IEEE**:
-
 ---
 
 ## Project Overview 
