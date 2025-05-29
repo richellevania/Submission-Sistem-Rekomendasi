@@ -535,8 +535,6 @@ City of God (Cidade de Deus) (2002)
 Dark Knight, The (2008)
 ```
 
-### Kesimpulan
-
 # **Kesimpulan**
 
 **Model Collaborative Filtering**
