@@ -112,12 +112,12 @@ File ini menyediakan koneksi antara ID film dalam MovieLens dengan ID eksternal 
     - `tmdbId (float): ID film dalam The Movie Database (TMDb); sebagian nilai dapat hilang (NaN)
       File ini berguna jika pengguna ingin menambahkan metadata tambahan dari sumber luar, seperti poster film, sinopsis, atau rating global dari situs eksternal.
 
-Jumlah film unik:  27278
-Jumlah pengguna unik:  138493
-Jumlah interaksi rating pengguna:  20000263
-Jumlah tag unik:  38644
-Jumlah film yang diberi tag:  19545
-Jumlah koneksi ke IMDb/TMDb:  27278
+- Jumlah film unik:  27278
+- Jumlah pengguna unik:  138493
+- Jumlah interaksi rating pengguna:  20000263
+- Jumlah tag unik:  38644
+- Jumlah film yang diberi tag:  19545
+- Jumlah koneksi ke IMDb/TMDb:  27278
 
 ## Univariate Exploratory Data Analysis
 
