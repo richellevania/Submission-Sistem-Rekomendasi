@@ -12,7 +12,7 @@ Untuk mengatasi tantangan dalam memberikan rekomendasi yang relevan, proyek ini 
 
 1. **Content-Based Filtering**: Menggunakan TF-IDF vectorization pada genre film dan menghitung cosine similarity antar film untuk menghasilkan rekomendasi berdasarkan kemiripan konten.
 
-2. **Collaborative Filtering**: Menggunakan matrix factorization (SVD) pada data rating pengguna untuk mengidentifikasi pola preferensi dan memberikan rekomendasi berbasis interaksi pengguna-item.
+2. **Collaborative Filtering**: Menggunakan Neural Network (RecommenderNet) lebih kompleks tapi fleksibel, cocok untuk sistem yang ingin belajar interaksi non-linear dan bisa dikembangkan dengan side features (genre, usia pengguna, dll).
 
 Dengan membandingkan performa kedua pendekatan ini, proyek ini bertujuan untuk mengevaluasi efektivitas masing-masing metode dalam konteks rekomendasi film, serta mengidentifikasi potensi kombinasi keduanya untuk meningkatkan akurasi dan relevansi rekomendasi.
 
@@ -378,36 +378,41 @@ Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip den
 class RecommenderNet(tf.keras.Model):
     def __init__(self, num_users, num_movies, embedding_size=50, **kwargs):
         super(RecommenderNet, self).__init__(**kwargs)
-        self.num_users = num_users
-        self.num_movies = num_movies
-        self.embedding_size = embedding_size
-
         self.user_embedding = layers.Embedding(
-            num_users,
-            embedding_size,
+            input_dim=num_users,
+            output_dim=embedding_size,
             embeddings_initializer="he_normal",
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.user_bias = layers.Embedding(num_users, 1)
+        self.user_bias = layers.Embedding(input_dim=num_users, output_dim=1)
 
         self.movie_embedding = layers.Embedding(
-            num_movies,
-            embedding_size,
+            input_dim=num_movies,
+            output_dim=embedding_size,
             embeddings_initializer="he_normal",
             embeddings_regularizer=keras.regularizers.l2(1e-6)
         )
-        self.movie_bias = layers.Embedding(num_movies, 1)
+        self.movie_bias = layers.Embedding(input_dim=num_movies, output_dim=1)
+
+        self.activation = layers.Activation('sigmoid')  # Optional
 
     def call(self, inputs):
-        user_vector = self.user_embedding(inputs[:, 0])
-        user_bias = self.user_bias(inputs[:, 0])
-        movie_vector = self.movie_embedding(inputs[:, 1])
-        movie_bias = self.movie_bias(inputs[:, 1])
+        user_id = inputs[:, 0]
+        movie_id = inputs[:, 1]
 
-        dot_user_movie = tf.tensordot(user_vector, movie_vector, 2)
-        x = dot_user_movie + user_bias + movie_bias
+        user_vector = self.user_embedding(user_id)
+        user_bias = self.user_bias(user_id)
 
-        return tf.nn.sigmoid(x)
+        movie_vector = self.movie_embedding(movie_id)
+        movie_bias = self.movie_bias(movie_id)
+
+        dot_product = tf.reduce_sum(user_vector * movie_vector, axis=1, keepdims=True)
+
+        # Add bias terms
+        x = dot_product + user_bias + movie_bias
+
+        # Optional activation (sigmoid output between 0–1 if predicting rating between those)
+        return self.activation(x)
 ```
 Mendefinisikan arsitektur model Collaborative Filtering berbasis neural network bernama RecommenderNet menggunakan TensorFlow/Keras. Model ini dibangun di atas konsep embedding untuk merepresentasikan pengguna dan film dalam ruang dimensi yang lebih rendah. Pada metode __init__, model menginisialisasi dua lapisan embedding terpisah: satu untuk pengguna (self.user_embedding) dan satu untuk film (self.movie_embedding), masing-masing dengan ukuran embedding 50. Inisialisasi embedding menggunakan "he_normal" dan dilengkapi dengan regularisasi L2 (keras.regularizers.l2(1e-6)) untuk mencegah overfitting. Selain itu, model juga menyertakan lapisan bias terpisah untuk setiap pengguna (self.user_bias) dan setiap film (self.movie_bias), yang akan menangkap preferensi atau popularitas intrinsik yang tidak tercakup oleh interaksi embedding.
 
