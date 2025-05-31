@@ -79,7 +79,7 @@ File ratings.csv merupakan inti dari sistem rekomendasi dalam dataset ini. File 
 
 Selain itu, file links.csv dalam MovieLens berisi relasi antara movieId dengan ID dari basis data film lain seperti IMDb dan TMDb. File ini berguna untuk integrasi eksternal atau penambahan metadata tambahan jika dibutuhkan.
 
-[Kaggke Dataset](https://www.kaggle.com/datasets/grouplens/movielens-20m-dataset) 
+[Kaggle Dataset](https://www.kaggle.com/datasets/grouplens/movielens-20m-dataset) 
 
 **Fitur Dataset:**
 1. **`movies.csv`** – Metadata Item (Film)
