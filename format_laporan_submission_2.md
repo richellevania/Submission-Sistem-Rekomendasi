@@ -329,15 +329,9 @@ Jumlah data duplikat: 0
 ```
 Dengan tidak adanya duplikat, analisis atau model yang akan dibangun di kemudian hari akan beroperasi pada dataset yang bersih dan setiap pengamatan (baris) akan merepresentasikan informasi yang berbeda. Ini sangat penting untuk memastikan keakuratan hasil dan menghindari perhitungan berulang yang tidak perlu.
 
-## Modeling
+### Preparation untuk Content Based Filtering
 
-### Model Development Content Based Filtering
-
-* Fitur: Genre → TF-IDF vectorization
-* Ukuran matriks TF-IDF: (2500, 21)
-* Kemiripan dihitung menggunakan cosine similarity
-* Top-N Recommendation: diberikan berdasarkan judul input, misalnya: Untuk Ice Age (2002), hasilnya termasuk Rio (2011), Wallace & Gromit (2005), dll.
-
+* **TF-IDF Vectorization**
 ```
 # Ambil sampel 5000 film
 data = data.sample(n=5000, random_state=42).reset_index(drop=True)
@@ -351,29 +345,76 @@ movies = movies[movies['movieId'].isin(sampled_movie_ids)]
 # Opsional: Reset index jika diperlukan untuk operasi selanjutnya
 movies = movies.reset_index(drop=True)
 ```
-- Pengambilan Sampel Data: Baris kode data = data.sample(n=5000, random_state=42).reset_index(drop=True) menunjukkan bahwa hanya 5000 film yang diambil secara acak dari dataframe data yang lebih besar. Pengambilan sampel ini sering dilakukan untuk mengurangi ukuran dataset, yang dapat mempercepat proses komputasi, terutama pada langkah-langkah seperti TF-IDF Vectorization yang bisa sangat intensif secara komputasi jika diterapkan pada dataset yang sangat besar. random_state=42 memastikan bahwa sampel yang diambil akan selalu sama setiap kali kode dijalankan, menjadikannya dapat direplikasi. reset_index(drop=True) mengatur ulang indeks dataframe setelah pengambilan sampel.
-- Pemfilteran Film Relevan: Setelah mengambil sampel data, kode kemudian mengidentifikasi movieId unik dari sampel tersebut (sampled_movie_ids = data['movieId'].unique()). Selanjutnya, dataframe movies (yang diasumsikan berisi metadata lengkap semua film) difilter untuk hanya menyertakan film-film yang movieId-nya ada dalam sampled_movie_ids. Ini penting untuk memastikan bahwa hanya metadata film yang relevan dengan sampel 5000 film yang akan digunakan dalam proses TF-IDF.
-- Efisiensi Komputasi: Seluruh langkah ini bertujuan untuk meningkatkan efisiensi komputasi. Dengan membatasi jumlah film yang akan diolah untuk TF-IDF menjadi 5000, waktu pemrosesan dan kebutuhan memori akan jauh berkurang, memungkinkan eksplorasi dan pengembangan model yang lebih cepat. Namun, perlu diingat bahwa model yang dibangun dari sampel 5000 film mungkin tidak sepenuhnya merepresentasikan keseluruhan dataset film yang lebih besar. Hal ini perlu dipertimbangkan saat mengevaluasi kinerja dan generalisasi model.
 
-**Output Detail Film**
+Kode ini melakukan **penyaringan dan pengambilan sampel data film** dari dataset besar untuk mempersiapkan proses **TF-IDF Vectorization** berdasarkan kolom `genres`.
 
-![Output Detail ](Output_Detail.png)
+  1. **Sampling acak 5000 film** dari dataset `data` untuk memperkecil beban komputasi pada proses vektorisasi. Penggunaan `random_state=42` menjamin hasil sampling tetap konsisten (reproducible).
 
-Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
+  2. Menyimpan daftar `movieId` dari sampel film yang telah diambil — akan digunakan untuk menyaring DataFrame `movies`.
 
-**Output Rekomendasi Film**
+  3. Memastikan DataFrame `movies` hanya berisi **film-film yang termasuk dalam sampel**. Ini penting agar TF-IDF dilakukan hanya pada subset data yang relevan.
 
-![Output Rekomendasi](Output_Rekomendasi.png)
+  4. Mereset indeks DataFrame `movies` agar rapi dan siap digunakan untuk proses vektorisasi atau manipulasi lanjutan.
 
-Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
+Output setelah pembersihan data genre dan inisiasi - Fitting TF-IDF Vectorizer
 
-### Model Development dengan Collaborative Filtering
+```
+array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
+       'documentary', 'drama', 'fantasy', 'fi', 'film', 'horror', 'imax',
+       'musical', 'mystery', 'noir', 'romance', 'sci', 'thriller', 'war',
+       'western'], dtype=object)
+```
+Output setelah mengubah representasi fitur teks menjadi matriks numerik
 
-* Pendekatan: Matrix Factorization menggunakan Truncated SVD
-* Dataset digunakan: ratings.csv
-* Matriks user-item dibentuk lalu direduksi menggunakan SVD
-* Prediksi rating untuk item belum dirating oleh user, lalu diberikan Top-N item dengan prediksi tertinggi
+![Output Matriks ](Output_Matriks.png)
 
+* **Cosine Similarity**
+
+Output matriks similiarity
+
+![Output Matriks Similiarity ](Output_Matriks_Similiarity.png)
+
+### Preparation untuk Collaborative Filtering
+- **Encode userid** bertujuan untuk melakukan encoding pada userId yang ada di DataFrame. Artinya, setiap userId unik akan dipetakan ke dalam bentuk integer berurutan (misalnya, dari 0 hingga N-1, di mana N adalah jumlah pengguna unik). Ini adalah langkah umum dalam sistem rekomendasi, terutama ketika mempersiapkan data untuk model yang memerlukan input numerik atau ketika bekerja dengan ID yang tidak berurutan.
+- **Encode movieId** bertujuan untuk melakukan encoding pada movieId yang ada di DataFrame, mirip dengan proses encoding userId yang telah dilakukan sebelumnya. Setiap movieId unik akan dipetakan ke dalam bentuk integer berurutan (misalnya, dari 0 hingga M-1, di mana M adalah jumlah film unik).
+- **Float & Statistik** memastikan konsistensi tipe data dan memberikan gambaran menyeluruh tentang ukuran dataset (jumlah pengguna dan film) serta karakteristik data rating. Informasi ini krusial untuk:
+	- Merencanakan arsitektur model (misalnya, ukuran embedding layer untuk model neural network).
+	- Memilih algoritma rekomendasi yang sesuai (beberapa algoritma lebih cocok untuk dataset besar).
+	- Menentukan metrik evaluasi yang relevan.
+	- Memastikan data dalam format yang benar untuk langkah pelatihan model selanjutnya.
+ - **Membagi Data untuk Training dan Validasi** untuk memastikan kualitas dan keandalan model machine learning yang akan dibangun. Pengacakan data yang dilakukan dengan df.sample(frac=1, random_state=42) adalah praktik terbaik untuk menyiapkan data sebelum pembagian menjadi set pelatihan dan validasi, terutama untuk dataset yang sangat besar seperti ini. Mendefinisikan fitur (x) dan label (y), serta melakukan pembagian data menjadi set pelatihan (train) dan validasi (val). Selain itu, nilai rating dinormalisasi.
+ - **Format Input** sistem menyiapkan data yang dibutuhkan untuk menghasilkan rekomendasi film bagi seorang pengguna dengan pendekatan Collaborative Filtering. Proses dimulai dengan memilih salah satu pengguna secara acak, lalu sistem mengidentifikasi film-film yang belum pernah ditonton oleh pengguna tersebut.
+
+## Model Development Content Based Filtering
+- Fungsi Rekomendasi
+```
+def movie_recommendations(judul_film, similarity_data=cosine_sim_df, items=movies[['title', 'genres']], k=5):
+    """
+    Memberikan rekomendasi film berdasarkan kemiripan konten (genre)
+    """
+    # Ambil index dengan similarity tertinggi
+    index = similarity_data.loc[:, judul_film].to_numpy().argpartition(range(-1, -k, -1))
+
+    # Ambil nama-nama film yang paling mirip
+    closest = similarity_data.columns[index[-1:-(k+2):-1]]
+
+    # Drop judul film input agar tidak direkomendasikan ke dirinya sendiri
+    closest = closest.drop(judul_film, errors='ignore')
+
+    # Ubah menjadi DataFrame dan beri nama kolom 'title'
+    closest_df = pd.DataFrame(closest, columns=['title'])
+
+    # Merge dengan metadata (judul + genre)
+    return closest_df.merge(items, on='title').head(k)
+```
+Fungsi movie_recommendations() merekomendasikan film berdasarkan kemiripan genre menggunakan cosine similarity dari matriks TF-IDF.
+- Mencari film yang paling mirip dengan film acuan (judul_film)
+- Menghindari merekomendasikan film itu sendiri
+- Mengembalikan k film terdekat beserta judul dan genre-nya
+Efisien karena memakai argpartition untuk pencarian cepat dan langsung menggabungkan hasil dengan metadata film.
+
+## Model Development dengan Collaborative Filtering
+### Membangun Model Collaborative Filtering
 ```
 class RecommenderNet(tf.keras.Model):
     def __init__(self, num_users, num_movies, embedding_size=50, **kwargs):
@@ -394,8 +435,6 @@ class RecommenderNet(tf.keras.Model):
         )
         self.movie_bias = layers.Embedding(input_dim=num_movies, output_dim=1)
 
-        self.activation = layers.Activation('sigmoid')  # Optional
-
     def call(self, inputs):
         user_id = inputs[:, 0]
         movie_id = inputs[:, 1]
@@ -412,264 +451,274 @@ class RecommenderNet(tf.keras.Model):
         x = dot_product + user_bias + movie_bias
 
         # Optional activation (sigmoid output between 0–1 if predicting rating between those)
-        return self.activation(x)
-```
-Mendefinisikan arsitektur model Collaborative Filtering berbasis neural network bernama RecommenderNet menggunakan TensorFlow/Keras. Model ini dibangun di atas konsep embedding untuk merepresentasikan pengguna dan film dalam ruang dimensi yang lebih rendah. Pada metode __init__, model menginisialisasi dua lapisan embedding terpisah: satu untuk pengguna (self.user_embedding) dan satu untuk film (self.movie_embedding), masing-masing dengan ukuran embedding 50. Inisialisasi embedding menggunakan "he_normal" dan dilengkapi dengan regularisasi L2 (keras.regularizers.l2(1e-6)) untuk mencegah overfitting. Selain itu, model juga menyertakan lapisan bias terpisah untuk setiap pengguna (self.user_bias) dan setiap film (self.movie_bias), yang akan menangkap preferensi atau popularitas intrinsik yang tidak tercakup oleh interaksi embedding.
-
-Metode call mendefinisikan forward pass model. Ketika input (pasangan ID pengguna dan film) diberikan, model mengambil vektor embedding dan bias yang sesuai untuk pengguna dan film tersebut. Prediksi rating kemudian dihitung dengan mengambil dot product antara vektor embedding pengguna dan film (mewakili interaksi mereka), lalu menambahkan bias pengguna dan bias film. Hasil akhir kemudian dilewatkan melalui fungsi aktivasi tf.nn.sigmoid. Penggunaan sigmoid ini mengubah output mentah menjadi nilai antara 0 dan 1, yang sangat sesuai untuk memprediksi rating yang telah dinormalisasi (seperti yang terlihat di langkah pra-pemrosesan data sebelumnya), memberikan probabilitas atau skor kemiripan antara pengguna dan film.
-
-```
-model = RecommenderNet(num_users, num_movies, embedding_size=50)
-
-model.compile(
-    loss=tf.keras.losses.BinaryCrossentropy(),
-    optimizer=keras.optimizers.Adam(learning_rate=0.001),
-    metrics=[tf.keras.metrics.RootMeanSquaredError()]
-)
-```
-Konfigurasi model pembelajaran mesin untuk sistem rekomendasi. Model tersebut, bernama RecommenderNet, diinisialisasi dengan parameter num_users (jumlah pengguna), num_movies (jumlah film), dan embedding_size sebesar 50. Ukuran embedding ini menentukan dimensi representasi vektor untuk pengguna dan item, yang merupakan kunci dalam menangkap preferensi dan karakteristik. Setelah inisialisasi, model dikompilasi menggunakan model.compile().
-
-Proses kompilasi ini mendefinisikan tiga aspek penting dari pelatihan model: fungsi kerugian (loss), optimizer, dan metrik evaluasi. Fungsi kerugian yang digunakan adalah tf.keras.losses.BinaryCrossentropy(), yang cocok untuk masalah klasifikasi biner atau ketika output model adalah probabilitas (misalnya, kemungkinan pengguna menyukai suatu film). Optimizer yang dipilih adalah keras.optimizers.Adam dengan learning_rate 0.001, yang merupakan algoritma optimasi adaptif populer untuk pelatihan jaringan saraf. Terakhir, metrik evaluasi yang digunakan adalah tf.keras.metrics.RootMeanSquaredError(), yang mengukur rata-rata kuadrat kesalahan antara prediksi model dan nilai sebenarnya, memberikan indikasi seberapa akurat prediksi model.
-
-```
-history = model.fit(
-    x=x_train,
-    y=y_train,
-    batch_size=64,
-    epochs=10,
-    validation_data=(x_val, y_val)
-)
-```
-```
-Epoch 1/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1083s 4ms/step - loss: 0.6911 - root_mean_squared_error: 0.2490 - val_loss: 0.8640 - val_root_mean_squared_error: 0.3084
-Epoch 2/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1055s 4ms/step - loss: 0.8982 - root_mean_squared_error: 0.3172 - val_loss: 0.9551 - val_root_mean_squared_error: 0.3290
-Epoch 3/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1059s 4ms/step - loss: 0.9731 - root_mean_squared_error: 0.3332 - val_loss: 0.9938 - val_root_mean_squared_error: 0.3362
-Epoch 4/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1116s 4ms/step - loss: 1.0025 - root_mean_squared_error: 0.3385 - val_loss: 1.0068 - val_root_mean_squared_error: 0.3374
-Epoch 5/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1087s 4ms/step - loss: 1.0154 - root_mean_squared_error: 0.3404 - val_loss: 1.0182 - val_root_mean_squared_error: 0.3399
-Epoch 6/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1108s 4ms/step - loss: 1.0249 - root_mean_squared_error: 0.3418 - val_loss: 1.0245 - val_root_mean_squared_error: 0.3407
-Epoch 7/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1154s 4ms/step - loss: 1.0335 - root_mean_squared_error: 0.3434 - val_loss: 1.0373 - val_root_mean_squared_error: 0.3446
-Epoch 8/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1124s 4ms/step - loss: 1.0389 - root_mean_squared_error: 0.3439 - val_loss: 1.0441 - val_root_mean_squared_error: 0.3433
-Epoch 9/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1080s 4ms/step - loss: 1.0487 - root_mean_squared_error: 0.3455 - val_loss: 1.0452 - val_root_mean_squared_error: 0.3433
-Epoch 10/10
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1118s 4ms/step - loss: 1.0519 - root_mean_squared_error: 0.3460 - val_loss: 1.0488 - val_root_mean_squared_error: 0.3452
-```
-Proses pelatihan model menggunakan Keras, ditandai dengan pemanggilan model.fit(). Model dilatih dengan data x_train dan y_train, menggunakan batch_size 64, dan selama 10 epochs. Selama pelatihan, model juga divalidasi dengan x_val dan y_val untuk memantau kinerja pada data yang tidak terlihat. Output ini menampilkan log pelatihan untuk setiap epoch, termasuk waktu yang dibutuhkan per langkah, nilai loss (kerugian pelatihan), root_mean_squared_error (RMSE pelatihan), val_loss (kerugian validasi), dan val_root_mean_squared_error (RMSE validasi).
-
-![Model Metrics](Model_Metrics.png)
-
-Dari grafik "Model Metrics", terlihat bahwa pada awal epoch, RMSE pelatihan (garis biru) dan RMSE validasi (garis oranye) keduanya meningkat. Sekitar epoch 2-3, RMSE validasi mulai berada di atas RMSE pelatihan dan terus meningkat perlahan hingga epoch 5-6, setelah itu cenderung stabil atau sedikit meningkat. Sementara itu, RMSE pelatihan juga meningkat tetapi dengan laju yang sedikit berbeda.
-
-Tren di mana RMSE validasi lebih tinggi dari RMSE pelatihan dan keduanya menunjukkan peningkatan seiring waktu, terutama pada fase akhir pelatihan, merupakan indikasi kuat adanya overfitting. Ini berarti model mempelajari pola-pola spesifik dari data pelatihan secara berlebihan, termasuk noise, sehingga performanya menurun ketika dihadapkan pada data baru atau yang tidak terlihat (data validasi). Idealnya, kedua garis RMSE harus menunjukkan penurunan atau stabilisasi pada nilai rendah, dan garis validasi harus mengikuti garis pelatihan tanpa divergensi yang signifikan. Untuk meningkatkan kinerja model, perlu dipertimbangkan teknik-teknik untuk mengurangi overfitting seperti early stopping, regularisasi (L1, L2, dropout), atau penambahan data.
-
-```
-ratings = model.predict(user_movie_array).flatten()
-top_ratings_indices = ratings.argsort()[-10:][::-1]
-
-recommended_movie_ids = [
-    movie_encoded_to_movie.get(movies_not_watched[x][0]) for x in top_ratings_indices
-]
-
-print(f"Showing recommendations for users: U{user_id:04d}")
-print("=" * 30)
-
-# Film dengan rating tertinggi dari user
-print("\nFilm with high ratings from user")
-print("-" * 30)
-
-top_movies = (
-    movies_watched_by_user.sort_values(by='rating', ascending=False)
-    .head(5)
-    .movieId.values
-)
-
-for m in movie_df[movie_df.movieId.isin(top_movies)].itertuples():
-    print(f"{m.title}")
-
-# Rekomendasi teratas
-print("\nTop 10 movie recommendation")
-print("-" * 30)
-
-for m in movie_df[movie_df.movieId.isin(recommended_movie_ids)].itertuples():
-    print(f"{m.title}")
-
-```
-Blok kode ini melanjutkan proses dari gambar sebelumnya, di mana user_movie_array (yang berisi kombinasi encoder pengguna dan film yang belum ditonton) digunakan sebagai input untuk model. Fungsi model.predict() kemudian menghasilkan prediksi rating atau preferensi untuk film-film tersebut. Setelah itu, top_ratings_indices dihitung untuk mendapatkan indeks dari 10 film teratas dengan prediksi rating tertinggi. Indeks-indeks ini kemudian digunakan untuk mengambil recommended_movie_ids yang sebenarnya dari daftar film yang belum ditonton, setelah di-decode kembali ke ID film asli.
-
-Output di bagian bawah menunjukkan hasil rekomendasi untuk user: U110541. Pertama, dicetak daftar "Film with high ratings from user", yang merupakan 5 film teratas yang telah ditonton dan diberi rating tinggi oleh pengguna tersebut. Ini berfungsi sebagai konteks untuk melihat preferensi pengguna di masa lalu. Kedua, dicetak "Top 10 movie recommendation", yang merupakan daftar 10 film yang direkomendasikan oleh model berdasarkan prediksi. Misalnya, Shawshank Redemption, The (1994) dan Godfather, The (1972) adalah beberapa film yang direkomendasikan. Perbandingan antara film yang telah ditonton dan film yang direkomendasikan dapat memberikan wawasan tentang relevansi dan keberhasilan sistem rekomendasi. Jika rekomendasi sesuai dengan genre atau tema film yang disukai pengguna di masa lalu, maka sistem bekerja dengan baik.
-
-**Output Rekomendasi**
-```
-Showing recommendations for users: U110541
-==============================
-
-Film with high ratings from user
-------------------------------
-Star Wars: Episode IV - A New Hope (1977)
-Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
-Star Wars: Episode V - The Empire Strikes Back (1980)
-Life Is Beautiful (La Vita è bella) (1997)
-American History X (1998)
-
-Top 10 movie recommendation
-------------------------------
-Shawshank Redemption, The (1994)
-Godfather, The (1972)
-Rear Window (1954)
-North by Northwest (1959)
-Godfather: Part II, The (1974)
-Chinatown (1974)
-M (1931)
-Rashomon (Rashômon) (1950)
-City of God (Cidade de Deus) (2002)
-Dark Knight, The (2008)
+        return x
 ```
 
-# **Kesimpulan**
+**1. Struktur Model (Class `RecommenderNet`)**
 
-**Model Collaborative Filtering**
-- Kelebihan:
-  - Mampu menemukan rekomendasi "serendipitous": Model ini dapat merekomendasikan item yang tidak terkait secara langsung dengan preferensi eksplisit pengguna (genre yang sama, aktor yang sama, dll.), tetapi disukai oleh pengguna lain dengan selera serupa. Misalnya, rekomendasi "Shawshank Redemption" atau "Godfather" kepada pengguna yang menyukai "Star Wars" bisa jadi merupakan serendipitous jika bukan karena genre yang sama.
-  - Tidak memerlukan metadata item: Model ini hanya bergantung pada interaksi pengguna-item (misalnya rating), sehingga tidak memerlukan informasi mendalam tentang fitur-fitur item itu sendiri.
-  - Mengakomodasi selera yang berubah: Jika selera pengguna berubah, model akan secara otomatis menyesuaikan rekomendasi berdasarkan interaksi baru dengan item lain.
+Model ini diimplementasikan sebagai subclass dari `tf.keras.Model`, menunjukkan bahwa ini adalah model Deep Learning.
 
-- Kekurangan:
-  - Masalah "Cold Start": Sulit untuk merekomendasikan item baru yang belum memiliki banyak interaksi, atau untuk pengguna baru yang belum memiliki riwayat interaksi yang cukup.
-  - Masalah "Sparsity": Dataset rating seringkali sangat jarang (sparse), artinya sebagian besar pengguna hanya memberi rating pada sebagian kecil dari total item, yang dapat menyulitkan model untuk menemukan pola yang kuat.
-  - Masalah "Popularity Bias": Cenderung merekomendasikan item-item populer yang sudah banyak berinteraksi, mengabaikan item-item niche yang mungkin relevan.
+* **Jenis dan Jumlah Layer:**
+    * **Layer Embedding untuk Pengguna:**
+        * `self.user_embedding = layers.Embedding(...)`: Ini adalah layer utama untuk merepresentasikan setiap pengguna sebagai sebuah vektor dense (embedding).
+        * `self.user_bias = layers.Embedding(...)`: Layer ini merepresentasikan bias unik untuk setiap pengguna. Bias ini menangkap kecenderungan umum pengguna untuk memberikan rating tinggi atau rendah, terlepas dari item spesifik.
+    * **Layer Embedding untuk Film (Item):**
+        * `self.movie_embedding = layers.Embedding(...)`: Mirip dengan embedding pengguna, layer ini merepresentasikan setiap film sebagai sebuah vektor dense.
+        * `self.movie_bias = layers.Embedding(...)`: Layer ini merepresentasikan bias unik untuk setiap film, menangkap popularitas umum film atau kecenderungannya untuk menerima rating tinggi/rendah.
 
-**Model Content-Based Filtering**
-- Kelebihan:
-  - Tidak ada masalah "Cold Start" untuk item baru: Selama item baru memiliki metadata (misalnya genre, deskripsi), item tersebut dapat segera direkomendasikan berdasarkan kesamaan konten.
-  - Rekomendasi yang jelas dan dapat dijelaskan: Alasan di balik rekomendasi mudah dipahami (misalnya, "Anda suka 'Ice Age', jadi kami merekomendasikan 'Horton Hears a Who' karena keduanya bergenre Animasi Anak").
-  - Mampu menangani pengguna baru: Jika pengguna baru memberikan beberapa preferensi awal (misalnya, genre favorit), rekomendasi dapat segera diberikan.
-  - Mampu merekomendasikan item niche: Dapat merekomendasikan item yang kurang populer tetapi sangat mirip dengan preferensi pengguna.
+* **Ukuran Embedding (`embedding_size=50`):**
+    * Setiap pengguna dan setiap film akan direpresentasikan oleh sebuah vektor berdimensi 50. Ukuran ini adalah *hyperparameter* penting. Semakin besar ukuran embedding, semakin banyak informasi yang dapat ditangkap oleh vektor tersebut, tetapi juga meningkatkan kompleksitas model dan risiko *overfitting*.
 
-- Kekurangan:
-  - Terbatas pada konten yang diketahui: Model ini hanya dapat merekomendasikan item yang mirip dengan apa yang sudah disukai pengguna. Sulit untuk menemukan rekomendasi yang "serendipitous" atau di luar "lingkaran" preferensi yang ada.
-  - Membutuhkan metadata item yang kaya: Kualitas rekomendasi sangat bergantung pada kelengkapan dan kualitas metadata item.
-  - Over-specialization: Pengguna bisa terus-menerus mendapatkan rekomendasi yang sangat mirip, yang bisa jadi membosankan.
+* **Inisialisasi Embedding (`embeddings_initializer="he_normal"`):**
+    * Menggunakan inisialisasi "He Normal" (atau kadang disebut "Kaiming Normal"). Ini adalah teknik inisialisasi bobot yang populer, terutama untuk layer dengan fungsi aktivasi ReLU (meskipun tidak ada ReLU eksplisit di sini, ini adalah praktik umum). Tujuannya adalah untuk menjaga skala varians aktivasi tetap stabil selama pelatihan.
 
-**Kesimpulan: Mana Model yang Lebih Baik?**
+* **Regularisasi Embedding (`embeddings_regularizer=keras.regularizers.l2(1e-6)`):**
+    * Menggunakan regularisasi L2 (juga dikenal sebagai *weight decay*) dengan kekuatan $1e-6$. Regularisasi L2 menambahkan penalti pada ukuran bobot embedding. Ini membantu mencegah *overfitting* dengan mendorong bobot embedding untuk tetap kecil dan mencegah model terlalu bergantung pada fitur-fitur spesifik dalam data pelatihan.
 
-Tidak ada satu model yang secara inheren "lebih baik" dari yang lain secara mutlak; model terbaik seringkali adalah kombinasi atau hibrida dari keduanya.
+**2. Mekanisme Kerja Model (`call` method)**
 
-Namun, berdasarkan output yang diberikan dan jenis masalah rekomendasi secara umum, Collaborative Filtering memiliki potensi yang lebih besar untuk memberikan rekomendasi yang lebih luas dan "serendipitous" kepada pengguna.
-  - Output Collaborative Filtering (Top 10 movie recommendation) menunjukkan film-film seperti Shawshank Redemption, Godfather, dan Rear Window, yang secara genre sangat berbeda dari "Star Wars" yang disukai pengguna, namun bisa jadi relevan karena disukai oleh pengguna lain dengan selera serupa. Ini menunjukkan kemampuan model untuk melampaui kesamaan konten eksplisit.
-  - Output Content-Based Filtering (Dapatkan rekomendasi film yang mirip dengan 'Ice Age (2002)') secara logis merekomendasikan film-film yang memiliki genre yang sama (Adventure Animation Children Comedy), yang meskipun relevan, mungkin tidak mengejutkan atau memperkenalkan pengguna pada film di luar zona nyamannya.
+Metode `call` mendefinisikan bagaimana input diproses oleh model untuk menghasilkan output prediksi.
 
-**Model Collaborative Filtering** cenderung lebih canggih dalam menangkap pola perilaku pengguna dan dapat menemukan hubungan tersembunyi antara item dan pengguna yang tidak dapat ditangkap oleh Content-Based Filtering. Meskipun memiliki tantangan seperti cold start dan sparsity, banyak teknik telah dikembangkan untuk mengatasinya (misalnya, menggunakan Content-Based Filtering untuk cold start, atau matriks faktorisasi dan teknik deep learning untuk sparsity).
+* **Input:** Model menerima dua input: `user_id` dan `movie_id`. Ini menunjukkan bahwa model memprediksi interaksi (misalnya, rating) berdasarkan pasangan pengguna-film.
+* **Lookup Embedding:**
+    * `user_vector = self.user_embedding(user_id)`: Mengambil vektor embedding untuk `user_id` yang diberikan.
+    * `user_bias = self.user_bias(user_id)`: Mengambil bias untuk `user_id`.
+    * `movie_vector = self.movie_embedding(movie_id)`: Mengambil vektor embedding untuk `movie_id` yang diberikan.
+    * `movie_bias = self.movie_bias(movie_id)`: Mengambil bias untuk `movie_id`.
+* **Perhitungan Dot Product:**
+    * `dot_product = tf.reduce_sum(user_vector * movie_vector, axis=1, keepdims=True)`: Ini adalah inti dari Collaborative Filtering berbasis Matrix Factorization. Prediksi dasar dihasilkan dari *dot product* (perkalian skalar) antara vektor embedding pengguna dan vektor embedding film. Dot product mengukur "kesamaan" antara pengguna dan film dalam ruang embedding. Semakin mirip mereka, semakin tinggi dot product-nya, yang mengindikasikan kemungkinan preferensi yang lebih tinggi.
+* **Penambahan Bias:**
+    * `x = dot_product + user_bias + movie_bias`: Bias pengguna dan bias film ditambahkan ke dot product. Ini penting karena:
+        * **Bias Pengguna:** Menyesuaikan prediksi berdasarkan kecenderungan umum pengguna (misalnya, pengguna yang selalu memberikan rating tinggi).
+        * **Bias Film:** Menyesuaikan prediksi berdasarkan popularitas atau kualitas umum film (misalnya, film yang selalu mendapatkan rating tinggi).
+* **Fungsi Aktivasi (Opsional):**
+    * `# Optional activation (sigmoid output between 0-1 if predicting rating between those)`: Komentar ini sangat penting. Jika model ini digunakan untuk memprediksi rating diskrit (misalnya, skala 1-5), maka tidak diperlukan fungsi aktivasi di lapisan output. Namun, jika tujuannya adalah memprediksi probabilitas atau nilai dalam rentang tertentu (misalnya, 0-1), fungsi aktivasi seperti `sigmoid` akan sangat berguna untuk membatasi output dalam rentang tersebut. Tanpa fungsi aktivasi, output `x` bisa berupa nilai real apa saja.
 
-**Rekomendasi: Untuk kasus umum sistem rekomendasi film, pendekatan Collaborative Filtering (atau hibrida yang menggabungkannya) cenderung lebih unggul karena kemampuannya untuk memberikan rekomendasi yang lebih beragam dan berpotensi "mengejutkan" (serendipitous) kepada pengguna, yang seringkali menjadi tujuan utama sistem rekomendasi.**
+**3. Parameter Pelatihan (Tidak Terlihat Langsung dalam Kode Ini, Tetapi Penting untuk Penjelasan Anda):**
 
-## Evaluation
+Meskipun kode yang diberikan hanya menampilkan struktur model, untuk menjelaskan model secara lengkap, Anda harus menyertakan informasi berikut saat menyajikannya kepada pembaca:
 
-Evaluasi model sangat penting untuk memahami seberapa baik sistem rekomendasi bekerja dalam konteks prediksi relevansi dan kepuasan pengguna. Evaluasi dilakukan secara terpisah untuk dua pendekatan yang digunakan, yaitu Content-Based Filtering dan Collaborative Filtering.
+* **Fungsi Loss (Loss Function):**
+    * Untuk tugas prediksi rating, *Mean Squared Error* (MSE) adalah pilihan umum (`tf.keras.losses.MeanSquaredError`). Jika memprediksi biner (suka/tidak suka), *Binary Cross-Entropy* akan lebih sesuai.
+* **Jenis Optimizer:**
+    * Optimizer yang umum digunakan adalah Adam (`tf.keras.optimizers.Adam`), SGD (`tf.keras.optimizers.SGD`), atau RMSprop. Pilihan optimizer dan *learning rate* sangat memengaruhi proses pelatihan dan konvergensi model.
+* **Parameter Pelatihan:**
+    * **Jumlah Epoch:** Berapa kali seluruh dataset pelatihan akan dilewati oleh model.
+    * **Batch Size:** Jumlah sampel yang akan diproses sebelum bobot model diperbarui.
+    * **Strategi Evaluasi:** Bagaimana model akan dievaluasi selama atau setelah pelatihan (misalnya, menggunakan set validasi).
+ 
+### Compile dan Train Model
 
-### 1. Evaluasi Content-Based Filtering
+```
+Epoch 1/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1090s 4ms/step - loss: 0.0653 - mae: 0.1844 - val_loss: 0.0426 - val_mae: 0.1512
+Epoch 2/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1120s 4ms/step - loss: 0.0422 - mae: 0.1502 - val_loss: 0.0425 - val_mae: 0.1506
+Epoch 3/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1100s 4ms/step - loss: 0.0421 - mae: 0.1498 - val_loss: 0.0424 - val_mae: 0.1504
+Epoch 4/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1096s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
+Epoch 5/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1100s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
+Epoch 6/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1075s 4ms/step - loss: 0.0421 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
+```
+Output menunjukkan kemajuan pelatihan per epoch:
 
-#### Metrik Evaluasi: **Top-N Precision**
+* **Format `Epoch X/Y`:** Menunjukkan epoch saat ini (X) dari total epoch yang direncanakan (Y).
+* **`250004/250004`:** Ini menunjukkan jumlah sampel (atau langkah) yang diproses dalam satu epoch. Ini kemungkinan adalah jumlah total pasangan user-movie dalam data pelatihan Anda.
+* **`1090s 4ms/step`:**
+    * Insight: Menunjukkan waktu yang dibutuhkan untuk menyelesaikan satu epoch (sekitar 1090 detik atau ~18 menit) dan waktu rata-rata per langkah (4 milidetik). Ini memberikan gambaran tentang efisiensi komputasi pelatihan.
+* **`loss: 0.0653`, `mae: 0.1844`:**
+    * Insight: Ini adalah nilai *loss* (MSE) dan MAE pada *data pelatihan* di akhir epoch tersebut. Kita ingin nilai ini menurun seiring waktu.
+* **`val_loss: 0.0426`, `val_mae: 0.1512`:**
+    * Insight: Ini adalah nilai *loss* (MSE) dan MAE pada *data validasi* di akhir epoch tersebut. Ini adalah metrik yang paling penting untuk memantau *overfitting*.
+    * **Perhatikan:** Pada Epoch 1, `val_loss` (0.0426) lebih rendah dari `loss` pelatihan (0.0653). Ini bisa terjadi di awal pelatihan karena model masih "belajar" dan data validasi mungkin memiliki karakteristik yang sedikit berbeda atau lebih "mudah" pada tahap awal.
 
-Pendekatan Content-Based Filtering dalam proyek ini menghasilkan daftar film yang mirip berdasarkan fitur konten (genre dan tag), dihitung menggunakan cosine similarity antar representasi TF-IDF. Untuk mengevaluasi performa sistem, digunakan metrik **Precision\@K**, yang mengukur proporsi item relevan dalam rekomendasi.
+**Analisis Lanjutan dari Output Epoch:**
 
-**Formula Precision\@K**:
+Mari kita perhatikan nilai `val_loss` dan `val_mae` dari epoch ke epoch:
 
-$$
-\text{Precision@K} = \frac{| \text{Rekomendasi relevan} \cap \text{Rekomendasi yang diberikan} |}{K}
-$$
+* **Epoch 1:** `val_loss: 0.0426`, `val_mae: 0.1512`
+* **Epoch 2:** `val_loss: 0.0425`, `val_mae: 0.1506` (sedikit membaik)
+* **Epoch 3:** `val_loss: 0.0424`, `val_mae: 0.1504` (sedikit membaik lagi)
+* **Epoch 4:** `val_loss: 0.0424`,**1. Inisialisasi Model:**
+   * `model = RecommenderNet(num_users, num_movies, embedding_size=50)`: Baris ini menginisialisasi model rekomendasi. Ini mengacu pada kelas `RecommenderNet` yang mungkin telah didefinisikan sebelumnya (seperti yang terlihat pada gambar sebelumnya), yang bertanggung jawab untuk membangun arsitektur jaringan saraf (embedding pengguna dan film, bias, dll.). Parameter `num_users`, `num_movies`, dan `embedding_size` adalah input kunci yang menentukan ukuran embedding dan jumlah entitas yang akan direpresentasikan.
 
-* **K** adalah jumlah rekomendasi teratas yang diberikan (misal K = 5).
-* Relevansi ditentukan berdasarkan kesamaan genre/tag yang tinggi atau user preference sebelumnya.
-* Contoh implementasi dalam notebook: evaluasi dilakukan secara manual dengan mencocokkan genre/tag film hasil rekomendasi terhadap film input (*Ice Age (2002)*). Mayoritas hasil mengandung genre serupa (Animation, Adventure, Children) seperti *Rio (2011)* dan *Ice Age 2: The Meltdown (2006)*.
+**2. Kompilasi Model:**
+   * `model.compile(...)`: Langkah ini mengonfigurasi model untuk pelatihan. Ini adalah tahap krusial di mana Anda mendefinisikan:
+     * **Loss Function (`loss='mean_squared_error'`):**
+       * Insight: `mean_squared_error` (MSE) adalah fungsi loss yang umum digunakan untuk tugas regresi, di mana tujuannya adalah memprediksi nilai numerik (misalnya, rating film). MSE mengukur rata-rata kuadrat perbedaan antara nilai prediksi dan nilai sebenarnya. Tujuannya adalah meminimalkan nilai ini selama pelatihan.
+     * **Optimizer (`optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)`):**
+       * Insight: Adam adalah salah satu optimizer *adaptive learning rate* yang paling populer dan efektif. `learning_rate=0.001` adalah *hyperparameter* yang menentukan seberapa besar langkah yang diambil optimizer saat menyesuaikan bobot model untuk meminimalkan loss. Pilihan Adam dan *learning rate* ini seringkali merupakan titik awal yang baik dan cenderung konvergen lebih cepat dibandingkan optimizer lain seperti SGD murni.
+     * **Metrics (`metrics=['mae']`):**
+       * Insight: `mae` (Mean Absolute Error) adalah metrik lain yang akan dihitung dan ditampilkan selama pelatihan. MAE mengukur rata-ata nilai absolut perbedaan antara prediksi dan nilai sebenarnya. Meskipun MSE digunakan untuk mengoptimalkan model (karena sifatnya yang dapat didiferensiasi dengan baik), MAE seringkali lebih mudah diinterpretasikan dalam skala aslinya, karena tidak mengkuadratkan kesalahan.
 
-**Kelebihan:**
+**3. Konfigurasi EarlyStopping:**
+   * `early_stop = EarlyStopping(...)`: Ini adalah *callback* yang sangat penting untuk mencegah *overfitting* dan menghemat waktu pelatihan.
+     * **`monitor='val_loss'`:**
+       * Insight: `EarlyStopping` akan memantau nilai *loss* pada data validasi. Data validasi adalah data yang tidak digunakan untuk pelatihan dan berfungsi sebagai proksi untuk kinerja model pada data yang belum pernah dilihat.
+     * **`patience=3`:**
+       * Insight: Pelatihan akan berhenti jika `val_loss` tidak membaik selama 3 epoch berturut-turut. Ini memberikan sedikit toleransi terhadap fluktuasi kecil dalam *loss* validasi, sehingga model tidak berhenti terlalu dini jika ada sedikit penurunan kinerja sementara.
+     * **`restore_best_weights=True`:**
+       * Insight: Setelah pelatihan berhenti, bobot model akan dikembalikan ke keadaan terbaiknya (yaitu, bobot yang menghasilkan `val_loss` terendah) sebelum `EarlyStopping` diaktifkan. Ini memastikan bahwa Anda mendapatkan model yang paling berkinerja baik dari proses pelatihan.
 
-* Sederhana dan mudah diinterpretasikan.
-* Cocok untuk sistem berbasis konten tanpa ground truth rating eksplisit.
+**4. Training Model dengan EarlyStopping:**
+   * `history = model.fit(...)`: Ini adalah langkah di mana proses pelatihan model yang sebenarnya berlangsung.
+     * **`x=X_train, y=y_train`:**
+       * Insight: `X_train` adalah fitur input (pasangan user-movie ID), dan `y_train` adalah target output (misalnya, rating yang sebenarnya). Ini adalah data yang akan digunakan model untuk belajar.
+     * **`batch_size=64`:**
+       * Insight: Data pelatihan dibagi menjadi *batch* berukuran 64. Model akan memperbarui bobotnya setelah memproses setiap *batch*. Ukuran *batch* ini memengaruhi kecepatan pelatihan dan stabilitas gradien.
+     * **`epochs=20`:**
+       * Insight: Model akan mencoba melatih selama 20 epoch. Namun, karena `EarlyStopping` diaktifkan, pelatihan kemungkinan akan berhenti lebih awal jika `val_loss` tidak membaik.
+     * **`validation_data=(X_val, y_val)`:**
+       * Insight: Ini adalah data yang digunakan untuk memantau kinerja model secara independen dari data pelatihan, yang sangat penting untuk mendeteksi *overfitting* dan digunakan oleh `EarlyStopping`.
+     * **`callbacks=[early_stop]`:**
+       * Insight: `EarlyStopping` diaktifkan selama pelatihan.
 
-**Kekurangan:**
+**Insight dari Output Pelatihan (Epochs):**
+ `val_mae: 0.1505` (sedikit stagnan, atau bahkan sedikit memburuk di MAE)
+* **Epoch 5:** `val_loss: 0.0424`, `val_mae: 0.1505` (stagnan)
+* **Epoch 6:** `val_loss: 0.0424`, `val_mae: 0.1505` (stagnan)
 
-* Tidak mempertimbangkan urutan ranking antar item.
-* Subjektivitas dalam mendefinisikan relevansi.
+**Insight dari Pola ini:**
 
-**Cosine Similarity**
+* **Konvergensi Cepat:** Model tampaknya belajar dengan sangat cepat. `val_loss` mencapai nilai rendah cukup cepat (dari 0.0426 di Epoch 1 ke 0.0424 di Epoch 3).
+* **Potensi Early Stopping:** Mengingat `patience=3`, jika `val_loss` tetap di `0.0424` atau tidak membaik secara signifikan selama Epoch 4, 5, dan 6, maka `EarlyStopping` kemungkinan besar akan menghentikan pelatihan setelah Epoch 6 atau 7. Ini karena tidak ada perbaikan pada `val_loss` selama 3 epoch berturut-turut (dari Epoch 4 hingga 6).
+* **Tidak Ada Overfitting yang Jelas (Sejauh Ini):** Perbedaan antara `loss` pelatihan dan `val_loss` tidak terlalu besar dan `val_loss` tidak mulai meningkat. Ini menunjukkan bahwa pada epoch ini, model belum menunjukkan tanda-tanda *overfitting* yang signifikan. `EarlyStopping` akan memastikan bahwa model tidak *overfit* jika *val_loss* mulai meningkat di epoch-epoch berikutnya.
 
-Digunakan dalam proyek  untuk menghitung kemiripan antara vektor TF-IDF genre antar film.
+**Kesimpulan Umum:**
 
-**Formula:**
+Kode ini menunjukkan praktik terbaik dalam melatih model Deep Learning:
 
-$$
-\cos(\theta) = \frac{A \cdot B}{\|A\|\|B\|} = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \cdot \sqrt{\sum_{i=1}^{n} B_i^2}}
-$$
+1.  **Model Arsitektur yang Jelas:** Didefinisikan dalam `RecommenderNet`.
+2.  **Kompilasi yang Tepat:** Memilih fungsi loss, optimizer, dan metrik yang sesuai.
+3.  **Regularisasi Implisit dan Eksplisit:** Meskipun regularisasi L2 pada embedding adalah eksplisit, `EarlyStopping` bertindak sebagai bentuk regularisasi implisit yang sangat efektif.
+4.  **Pemantauan Kinerja Validasi:** Menggunakan `validation_data` dan `monitor='val_loss'` adalah kunci untuk pelatihan yang efektif dan pencegahan *overfitting*.
 
-**Konteks:**
-
-* Dipakai pada TF-IDF vector film (genre, tag)
-* Nilai berkisar antara 0 (tidak mirip) hingga 1 (sangat mirip)
-* **Tidak digunakan sebagai metrik evaluasi akhir, tetapi sebagai dasar dalam proses rekomendasi**
+Hasil awal menunjukkan bahwa model belajar dengan cepat dan `EarlyStopping` akan sangat membantu dalam menemukan titik konvergensi optimal tanpa membuang-buang sumber daya komputasi atau menghadapi masalah *overfitting*.
 
 
----
+## Evaluasi Model
+**Evaluasi Precision@K untuk Content-Based Filtering**
 
-### 2. Evaluasi Collaborative Filtering
+```
+Pengguna: 1, Total Rekomendasi: 10, Hits (film yang sudah disukai): 1
+Precision@10 for user 1: 0.1
+Pengguna: 118205, Total Rekomendasi: 10, Hits (film yang sudah disukai): 3
+Precision@10 for user 118205: 0.3
+```
+- Tujuan: Kode ini bertujuan untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
 
-#### Metrik Evaluasi: **Root Mean Squared Error (RMSE)**
+- Penjelasan Metrik Precision@K:
+  - K: Menunjukkan jumlah rekomendasi teratas yang dievaluasi. Dalam contoh ini, K adalah 10.
+  - Hits: Jumlah film dalam rekomendasi teratas (K film) yang sebenarnya disukai oleh pengguna (yaitu, film yang sudah mereka tonton dan beri rating tinggi, atau film yang sudah ada dalam daftar "disukai" mereka).
+  - Precision@K: Dihitung sebagai Hits / K. Semakin tinggi nilainya, semakin baik sistem rekomendasi tersebut.
 
-Untuk Collaborative Filtering, digunakan neural network berbasis embedding (RecommenderNet). Model ini dilatih untuk memprediksi rating film dari pengguna, sehingga metrik evaluasi yang digunakan adalah RMSE, yang mengukur deviasi antara rating aktual dan rating prediksi.
+- Kesimpulan Utama:
+  - Sistem rekomendasi ini sedang dievaluasi pada kemampuannya untuk merekomendasikan film yang sudah terbukti disukai oleh pengguna, bukan untuk merekomendasikan film baru yang belum pernah mereka tonton.
+  - Metrik Precision@K digunakan untuk kuantifikasi.
+  - Ada variasi kinerja yang signifikan antara pengguna yang berbeda (Pengguna 1 memiliki Precision@10 0.1, sementara Pengguna 118205 memiliki Precision@10 0.3). Hal ini menunjukkan bahwa sistem mungkin bekerja lebih baik untuk beberapa pengguna daripada yang lain, atau data pengguna untuk beberapa pengguna lebih "mudah" untuk direkomendasikan.
+  - Komentar dalam kode menyoroti batasan evaluasi offline dan tantangan dalam menentukan "ground truth" untuk rekomendasi yang sebenarnya. Sistem mungkin perlu diuji dengan metrik lain atau dalam skenario online untuk evaluasi yang lebih komprehensif.
 
-**Formula RMSE**:
+**Visualisasi Collaborative Filtering**
+![Visualisasi Collaborative Filtering ](Visualisasi_Collaborative_Filtering.png)
 
-$$
-RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2}
-$$
+Grafik ini menunjukkan performa model selama pelatihan.
+- Loss (Train & Validation): Keduanya menurun tajam di awal lalu mendatar. Ini menunjukkan model belajar dengan cepat dan kemudian konvergen. Val Loss sedikit lebih rendah dan lebih stabil daripada - Train Loss, yang jarang terjadi tetapi bisa mengindikasikan bahwa data validasi mungkin sedikit lebih "mudah" atau distribusi yang berbeda, atau regularization bekerja dengan sangat baik.
+- MAE (Train & Validation): Mirip dengan loss, MAE juga menurun dan mendatar. Val MAE juga sedikit lebih rendah dari Train MAE.
+- Tidak Ada Overfitting: Tidak ada tanda-tanda overfitting yang jelas karena Val Loss dan Val MAE tidak mulai meningkat setelah beberapa epoch. Model tampak stabil dan konvergen. Secara singkat, model telah belajar dengan baik, mencapai konvergensi cepat, dan tidak menunjukkan overfitting yang signifikan.
 
-* $\hat{y}_i$: nilai rating yang diprediksi
-* $y_i$: nilai rating aktual
-* $n$: jumlah data uji
-
-**Implementasi dalam notebook**:
-
-```python
-model.compile(
-    loss=tf.keras.losses.BinaryCrossentropy(),
-    optimizer=keras.optimizers.Adam(learning_rate=0.001),
-    metrics=[tf.keras.metrics.RootMeanSquaredError()]
-)
+**Evaluasi Collaborative Filtering**
+```
+125002/125002 ━━━━━━━━━━━━━━━━━━━━ 155s 1ms/step
+MAE (Mean Absolute Error): 0.1504
+MSE (Mean Squared Error): 0.0388
 ```
 
-Model dilatih selama 10 epoch dan menghasilkan metrik berikut:
+1. Prediksi (y_pred_val = model.predict(x_val).flatten()): Model yang telah dilatih digunakan untuk membuat prediksi rating pada dataset validasi (x_val). .flatten() digunakan untuk mengubah output prediksi menjadi array 1D.
 
-* RMSE training (akhir): \~0.3460
-* RMSE validasi (akhir): \~0.3452
+2. Perhitungan Metrik:
+  - mae = mean_absolute_error(y_val, y_pred_val): Menghitung Mean Absolute Error (MAE) antara rating sebenarnya (y_val) dan rating prediksi (y_pred_val).
+  - mse = mean_squared_error(y_val, y_pred_val): Menghitung Mean Squared Error (MSE).
 
-**Interpretasi:**
+3. Output Hasil:
+  - 125002/125002: Menunjukkan bahwa model memproses 125.002 sampel dalam data validasi.
+  - 155s 1ms/step: Proses prediksi membutuhkan waktu 155 detik (sekitar 2.5 menit) dengan rata-rata 1 milidetik per langkah/sampel.
+  - MAE (Mean Absolute Error): 0.1504: Ini berarti rata-rata selisih absolut antara rating prediksi dan rating sebenarnya adalah 0.1504. Angka ini cukup rendah, menunjukkan bahwa prediksi model cukup dekat dengan rating sebenarnya.
+  - MSE (Mean Squared Error): 0.0388: Ini adalah rata-rata kuadrat selisih. Nilai yang rendah ini juga mengindikasikan kinerja model yang baik dalam memprediksi rating.
 
-* Nilai RMSE rendah menunjukkan prediksi model cukup dekat dengan rating sebenarnya.
-* Grafik pelatihan menunjukkan overfitting ringan, ditandai dengan kenaikan RMSE validasi setelah epoch ke-5.
+Kesimpulan:
+Model menunjukkan kinerja yang baik pada data validasi, dengan MAE sekitar 0.15 dan MSE sekitar 0.039. Angka-angka ini konsisten dengan metrik validasi yang terlihat pada plot pelatihan sebelumnya, menegaskan bahwa model telah belajar dengan efektif dan mampu membuat prediksi rating yang akurat pada data yang belum pernah dilihat sebelumnya.
 
----
+## Penggunaan Rekomendasi
 
-### Ringkasan Evaluasi
+**1. Content-Based Recommendation**
 
-### 📊 Tabel Perbandingan Pendekatan Sistem Rekomendasi
+**Output Detail Film**
 
-| Aspek                  | Content-Based Filtering                                                             | Collaborative Filtering                                     |
-| ---------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| **Sumber data utama**  | Fitur konten item (genre, tag)                                                      | Interaksi historis pengguna (rating)                        |
-| **Basis rekomendasi**  | Kemiripan antar item berdasarkan konten                                             | Kesamaan pola preferensi antar pengguna dan item            |
-| **Metrik evaluasi**    | Precision\@K                                                                        | Root Mean Squared Error (RMSE)                              |
-| **Output rekomendasi** | Top-N film mirip dengan yang disukai user                                           | Top-N film dengan prediksi rating tertinggi untuk user      |
-| **Kelebihan**          | - Tidak butuh data banyak pengguna <br> - Cepat dan personal                        | - Menangkap pola preferensi implisit <br> - Lebih fleksibel |
-| **Kekurangan**         | - Terbatas pada informasi konten film <br> - Tidak bisa merekomendasikan genre baru | - Cold-start problem untuk user/item baru                   |
-| **Contoh hasil**       | Film mirip "Ice Age" → *Rio, Horton, Over the Hedge*                                | Prediksi film baru untuk user X dengan rating \~4.5         |
-| **Nilai evaluasi**     | Presisi tinggi (genre cocok)                                                        | RMSE \~0.3452 (prediksi cukup akurat)                       |
+![Output Detail ](Output_Detail.png)
 
----
+Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
+
+**Output Rekomendasi Film**
+
+![Output Rekomendasi](Output_Rekomendasi.png)
+
+Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
+
+**2. Collaborative Filtering Recommendation**
+**Prediksi Rating dan Rekomendasi Film**
+
+![Output Prediksi](Output_Prediksi.png)
+
+1.  **Prediksi Rating (`ratings = model.predict(user_movie_array).flatten()`):**
+    * Model yang telah dilatih digunakan untuk memprediksi rating untuk setiap film dalam `user_movie_array` (yaitu, film-film yang belum ditonton oleh pengguna). Hasilnya di-flatten menjadi array 1D.
+
+2.  **Mengambil Top Rekomendasi (`top_ratings_indices` & `recommended_movie_ids`):**
+    * `top_ratings_indices = ratings.argsort()[-10:][::-1]`: Mengurutkan prediksi rating secara menurun dan mengambil indeks 10 film teratas. Ini adalah film-film dengan prediksi rating tertinggi.
+    * `recommended_movie_ids`: Menggunakan indeks ini untuk mendapatkan `movie_id` asli dari film-film yang direkomendasikan.
+
+3.  **Menampilkan Film dengan Rating Tertinggi dari Pengguna (`top_movies`):**
+    * Kode ini mengambil 5 film teratas yang *sudah ditonton dan diberi rating tinggi* oleh pengguna (`movies_watched_by_user.sort_values(by='rating', ascending=False).head(5)`).
+    * Ini berfungsi sebagai **referensi** atau "garis dasar" untuk memahami preferensi historis pengguna.
+
+4.  **Menampilkan Rekomendasi Teratas:**
+    * Kode ini kemudian mencetak judul-judul film dari `recommended_movie_ids` yang dihasilkan oleh model.
+
+**Output:**
+
+* **`Showing recommendations for users: U(user_id:0d4d)`:** Menunjukkan `user_id` yang sedang diproses.
+* **`Film with high ratings from user`:**
+    * Menampilkan 5 film teratas yang diberi rating tinggi oleh pengguna tersebut (misalnya, `Twelve Monkeys`, `Usual Suspects`, `Godfather`, dll.). Ini adalah **preferensi historis** pengguna.
+* **`Top 10 movie recommendation`:**
+    * Menampilkan 10 film yang direkomendasikan oleh model (misalnya, `Stroszek`, `Winter Light`, `Man Escaped`, dll.). Ini adalah **prediksi model** berdasarkan pembelajaran.
+ 
+**Rekomendasi Top-5 untuk beberapa pengguna sampel**
+
+![Output Top5](Output_Top5.png)
+
+1.  **Iterasi Pengguna (`for user_id in users_to_recommend`):**
+    * `users_to_recommend = ratings_df.sample(5).tolist()`: Kode ini secara acak memilih 5 `user_id` dari `ratings_df`. Loop kemudian akan mengulang seluruh proses rekomendasi untuk setiap pengguna ini.
+
+2.  **Proses Rekomendasi (Diulang untuk Setiap Pengguna):**
+    * Untuk setiap `user_id` dalam `users_to_recommend`, langkah-langkah berikut diulang:
+        * Identifikasi film yang sudah ditonton (`movies_watched_by_user`).
+        * Identifikasi film yang belum ditonton (`movies_not_watched`).
+        * **Penting:** Ada *check* `if not movies_not_watched: continue` untuk melewati pengguna yang tidak memiliki film yang belum ditonton (atau tidak ada film yang bisa direkomendasikan). Ini adalah penanganan *edge case* yang baik.
+        * Siapkan input model (`user_movie_array`) dengan `user_encoder` yang sesuai dan film-film yang belum ditonton.
+        * Prediksi rating untuk film-film yang belum ditonton (`ratings_pred`).
+        * Ambil indeks 5 film teratas dengan prediksi rating tertinggi (`top_ratings_indices = ratings_pred.argsort()[-5:][::-1]`).
+        * Dapatkan `movie_id` dari film-film yang direkomendasikan (`recommended_movie_ids`).
+        * Cetak `user_id` dan judul film-film rekomendasi Top-5. Jika tidak ada rekomendasi, cetak pesan "Could not generate recommendations."
+
+**Output:**
+
+Output menunjukkan hasil rekomendasi Top-5 untuk setiap pengguna sampel yang dipilih secara acak. Anda dapat melihat beberapa blok output yang mirip, masing-masing dimulai dengan indikator proses (misalnya, `77/77`) dan diikuti dengan daftar 5 film yang direkomendasikan.
+
+* Setiap blok output menampilkan "Top 5 movie recommendation" diikuti oleh daftar 5 film.
+* Perhatikan bahwa daftar rekomendasi dapat bervariasi antar pengguna, yang menunjukkan personalisasi dari sistem rekomendasi.
+* Misalnya, satu pengguna mendapatkan `Stroszek`, `Winter Light`, `Man Escaped`, `Marriage of Maria Braun`, `More Than Money`.
+* Pengguna lain mungkin mendapatkan daftar yang sedikit berbeda atau sama, tergantung pada preferensi mereka dan bagaimana model memprediksi kesukaan mereka. Ada beberapa tumpang tindih dalam daftar rekomendasi yang ditampilkan, seperti `Stroszek`, `Winter Light`, `Marriage of Maria Braun`, dan `More Than Money` muncul beberapa kali. Ini bisa menunjukkan film-film tersebut adalah rekomendasi "kuat" atau umum dari model.
+
+
