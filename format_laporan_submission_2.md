@@ -237,15 +237,15 @@ Dari visualisasi barplot, "sci-fi" adalah tag paling populer, diikuti oleh "base
 ## Data Preprocessing
 
 - Menggabungkan Data Rating dan Movie Metadata
-```
-	userId	movieId	rating	timestamp	title	genres
-0	1	2	3.5	1112486027	Jumanji (1995)	Adventure|Children|Fantasy
-1	1	29	3.5	1112484676	City of Lost Children, The (Cité des enfants p...	Adventure|Drama|Fantasy|Mystery|Sci-Fi
-2	1	32	3.5	1112484819	Twelve Monkeys (a.k.a. 12 Monkeys) (1995)	Mystery|Sci-Fi|Thriller
-3	1	47	3.5	1112484727	Seven (a.k.a. Se7en) (1995)	Mystery|Thriller
-4	1	50	3.5	1112484580	Usual Suspects, The (1995)	Crime|Mystery|Thriller
 
-```
+| userId | movieId | rating | timestamp   | title                                               | genres                                      |
+|--------|---------|--------|-------------|------------------------------------------------------|---------------------------------------------|
+| 1      | 2       | 3.5    | 1112486027  | Jumanji (1995)                                      | Adventure\|Children\|Fantasy                |
+| 1      | 29      | 3.5    | 1112484676  | City of Lost Children, The (Cité des enfants perdus) | Adventure\|Drama\|Fantasy\|Mystery\|Sci-Fi |
+| 1      | 32      | 3.5    | 1112484819  | Twelve Monkeys (a.k.a. 12 Monkeys) (1995)           | Mystery\|Sci-Fi\|Thriller                   |
+| 1      | 47      | 3.5    | 1112484727  | Seven (a.k.a. Se7en) (1995)                         | Mystery\|Thriller                           |
+| 1      | 50      | 3.5    | 1112484580  | Usual Suspects, The (1995)                          | Crime\|Mystery\|Thriller                    |
+
 Melakukan penggabungan data rating film dengan informasi film (judul dan genre) menggunakan fungsi pd.merge di Python. Hasil penggabungan ini menghasilkan sebuah DataFrame baru bernama movie_ratings yang berisi kolom userId, movieId, rating, timestamp, title, dan genres. Hal ini memungkinkan kita untuk melihat rating yang diberikan oleh setiap pengguna pada film-film tertentu, lengkap dengan judul dan genre film tersebut.
 
 DataFrame movie_ratings yang ditampilkan menunjukkan beberapa baris pertama dari data yang telah digabungkan. Sebagai contoh, pengguna dengan userId 1 memberikan rating 3.5 untuk film "Jumanji (1995)" yang bergenre "Adventure|Children|Fantasy". Penggabungan data ini merupakan langkah penting dalam analisis data film karena menyatukan informasi dari berbagai sumber, sehingga memudahkan untuk mendapatkan wawasan tentang preferensi pengguna, popularitas film berdasarkan rating, atau bahkan untuk membangun sistem rekomendasi.
