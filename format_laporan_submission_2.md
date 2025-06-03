@@ -531,80 +531,32 @@ Epoch 6/20
 Epoch 7/20
 250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1062s 4ms/step - loss: 0.0421 - mae: 0.1498 - val_loss: 0.0424 - val_mae: 0.1505
 ```
-Output menunjukkan kemajuan pelatihan per epoch:
+**Struktur Model:**
 
-* **Format `Epoch X/Y`:** Menunjukkan epoch saat ini (X) dari total epoch yang direncanakan (Y).
-* **`250004/250004`:** Ini menunjukkan jumlah sampel (atau langkah) yang diproses dalam satu epoch. Ini kemungkinan adalah jumlah total pasangan user-movie dalam data pelatihan Anda.
-* **`1090s 4ms/step`:**
-    * Insight: Menunjukkan waktu yang dibutuhkan untuk menyelesaikan satu epoch (sekitar 1090 detik atau ~18 menit) dan waktu rata-rata per langkah (4 milidetik). Ini memberikan gambaran tentang efisiensi komputasi pelatihan.
-* **`loss: 0.0653`, `mae: 0.1844`:**
-    * Insight: Ini adalah nilai *loss* (MSE) dan MAE pada *data pelatihan* di akhir epoch tersebut. Kita ingin nilai ini menurun seiring waktu.
-* **`val_loss: 0.0426`, `val_mae: 0.1512`:**
-    * Insight: Ini adalah nilai *loss* (MSE) dan MAE pada *data validasi* di akhir epoch tersebut. Ini adalah metrik yang paling penting untuk memantau *overfitting*.
-    * **Perhatikan:** Pada Epoch 1, `val_loss` (0.0426) lebih rendah dari `loss` pelatihan (0.0653). Ini bisa terjadi di awal pelatihan karena model masih "belajar" dan data validasi mungkin memiliki karakteristik yang sedikit berbeda atau lebih "mudah" pada tahap awal.
+* **Jenis Model:** `RecommenderNet`. Meskipun detail internalnya tidak terlihat, nama ini mengindikasikan model rekomendasi khusus, kemungkinan besar berbasis *neural network*.
+* **Ukuran Embedding:** `embedding_size=50`. Ini menunjukkan setiap pengguna dan/atau film akan direpresentasikan dalam ruang vektor berdimensi 50, yang merupakan ukuran yang cukup umum untuk menangkap fitur-fitus laten.
+* **Jenis dan Jumlah Layer:** Tidak disebutkan secara eksplisit dalam kode yang terlihat, namun karena ini adalah model *deep learning*, kemungkinan besar terdapat setidaknya beberapa *dense layer* (atau layer lain seperti *embedding layer* yang sudah jelas) setelah *embedding layer* untuk memproses representasi embedding dan menghasilkan prediksi. Fungsi aktivasi juga tidak disebutkan, namun fungsi aktivasi umum seperti ReLU, Sigmoid, atau TanH sering digunakan.
 
-**Analisis Lanjutan dari Output Epoch:**
+**Parameter Pelatihan:**
 
-Mari kita perhatikan nilai `val_loss` dan `val_mae` dari epoch ke epoch:
+* **Fungsi Loss:** `mean_squared_error` (`mse`). Ini adalah fungsi *loss* yang umum digunakan untuk masalah regresi, menunjukkan bahwa model ini kemungkinan memprediksi rating numerik.
+* **Optimizer:** `tf.keras.optimizers.Adam(learning_rate=0.001)`. Adam adalah *optimizer* adaptif yang sangat populer dan efektif, dengan *learning rate* awal sebesar 0.001.
+* **Metrik:** `mae` (Mean Absolute Error). Selain *loss*, MAE juga dipantau untuk mengevaluasi performa model.
+* **Epochs:** `20`. Model akan dilatih hingga 20 *epoch*.
+* **Batch Size:** `64`. Data akan diproses dalam *batch* berukuran 64 sampel.
+* **Validasi:** Menggunakan `(x_val, y_val)` untuk memantau performa model pada data yang tidak digunakan untuk pelatihan.
+* **Callbacks:**
+    * `EarlyStopping`: Digunakan untuk menghentikan pelatihan lebih awal jika tidak ada peningkatan *val_loss* (loss pada data validasi) selama 3 *epoch* (`patience=3`).
+    * `monitor='val_loss'`: Metrik yang dipantau untuk *early stopping* adalah *val_loss*.
+    * `restore_best_weights=True`: Bobot model terbaik (saat *val_loss* terendah) akan dikembalikan setelah *early stopping*.
 
-* **Epoch 1:** `val_loss: 0.0426`, `val_mae: 0.1512`
-* **Epoch 2:** `val_loss: 0.0425`, `val_mae: 0.1506` (sedikit membaik)
-* **Epoch 3:** `val_loss: 0.0424`, `val_mae: 0.1504` (sedikit membaik lagi)
-* **Epoch 4:** `val_loss: 0.0424`,**1. Inisialisasi Model:**
-   * `model = RecommenderNet(num_users, num_movies, embedding_size=50)`: Baris ini menginisialisasi model rekomendasi. Ini mengacu pada kelas `RecommenderNet` yang mungkin telah didefinisikan sebelumnya (seperti yang terlihat pada gambar sebelumnya), yang bertanggung jawab untuk membangun arsitektur jaringan saraf (embedding pengguna dan film, bias, dll.). Parameter `num_users`, `num_movies`, dan `embedding_size` adalah input kunci yang menentukan ukuran embedding dan jumlah entitas yang akan direpresentasikan.
+**Proses Pelatihan yang Terlihat (Epochs 1-7):**
 
-**2. Kompilasi Model:**
-   * `model.compile(...)`: Langkah ini mengonfigurasi model untuk pelatihan. Ini adalah tahap krusial di mana Anda mendefinisikan:
-     * **Loss Function (`loss='mean_squared_error'`):**
-       * Insight: `mean_squared_error` (MSE) adalah fungsi loss yang umum digunakan untuk tugas regresi, di mana tujuannya adalah memprediksi nilai numerik (misalnya, rating film). MSE mengukur rata-rata kuadrat perbedaan antara nilai prediksi dan nilai sebenarnya. Tujuannya adalah meminimalkan nilai ini selama pelatihan.
-     * **Optimizer (`optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)`):**
-       * Insight: Adam adalah salah satu optimizer *adaptive learning rate* yang paling populer dan efektif. `learning_rate=0.001` adalah *hyperparameter* yang menentukan seberapa besar langkah yang diambil optimizer saat menyesuaikan bobot model untuk meminimalkan loss. Pilihan Adam dan *learning rate* ini seringkali merupakan titik awal yang baik dan cenderung konvergen lebih cepat dibandingkan optimizer lain seperti SGD murni.
-     * **Metrics (`metrics=['mae']`):**
-       * Insight: `mae` (Mean Absolute Error) adalah metrik lain yang akan dihitung dan ditampilkan selama pelatihan. MAE mengukur rata-ata nilai absolut perbedaan antara prediksi dan nilai sebenarnya. Meskipun MSE digunakan untuk mengoptimalkan model (karena sifatnya yang dapat didiferensiasi dengan baik), MAE seringkali lebih mudah diinterpretasikan dalam skala aslinya, karena tidak mengkuadratkan kesalahan.
+Dari *output* pelatihan yang ditampilkan, terlihat bahwa:
 
-**3. Konfigurasi EarlyStopping:**
-   * `early_stop = EarlyStopping(...)`: Ini adalah *callback* yang sangat penting untuk mencegah *overfitting* dan menghemat waktu pelatihan.
-     * **`monitor='val_loss'`:**
-       * Insight: `EarlyStopping` akan memantau nilai *loss* pada data validasi. Data validasi adalah data yang tidak digunakan untuk pelatihan dan berfungsi sebagai proksi untuk kinerja model pada data yang belum pernah dilihat.
-     * **`patience=3`:**
-       * Insight: Pelatihan akan berhenti jika `val_loss` tidak membaik selama 3 epoch berturut-turut. Ini memberikan sedikit toleransi terhadap fluktuasi kecil dalam *loss* validasi, sehingga model tidak berhenti terlalu dini jika ada sedikit penurunan kinerja sementara.
-     * **`restore_best_weights=True`:**
-       * Insight: Setelah pelatihan berhenti, bobot model akan dikembalikan ke keadaan terbaiknya (yaitu, bobot yang menghasilkan `val_loss` terendah) sebelum `EarlyStopping` diaktifkan. Ini memastikan bahwa Anda mendapatkan model yang paling berkinerja baik dari proses pelatihan.
-
-**4. Training Model dengan EarlyStopping:**
-   * `history = model.fit(...)`: Ini adalah langkah di mana proses pelatihan model yang sebenarnya berlangsung.
-     * **`x=X_train, y=y_train`:**
-       * Insight: `X_train` adalah fitur input (pasangan user-movie ID), dan `y_train` adalah target output (misalnya, rating yang sebenarnya). Ini adalah data yang akan digunakan model untuk belajar.
-     * **`batch_size=64`:**
-       * Insight: Data pelatihan dibagi menjadi *batch* berukuran 64. Model akan memperbarui bobotnya setelah memproses setiap *batch*. Ukuran *batch* ini memengaruhi kecepatan pelatihan dan stabilitas gradien.
-     * **`epochs=20`:**
-       * Insight: Model akan mencoba melatih selama 20 epoch. Namun, karena `EarlyStopping` diaktifkan, pelatihan kemungkinan akan berhenti lebih awal jika `val_loss` tidak membaik.
-     * **`validation_data=(X_val, y_val)`:**
-       * Insight: Ini adalah data yang digunakan untuk memantau kinerja model secara independen dari data pelatihan, yang sangat penting untuk mendeteksi *overfitting* dan digunakan oleh `EarlyStopping`.
-     * **`callbacks=[early_stop]`:**
-       * Insight: `EarlyStopping` diaktifkan selama pelatihan.
-
-**Insight dari Output Pelatihan (Epochs):**
- `val_mae: 0.1505` (sedikit stagnan, atau bahkan sedikit memburuk di MAE)
-* **Epoch 5:** `val_loss: 0.0424`, `val_mae: 0.1505` (stagnan)
-* **Epoch 6:** `val_loss: 0.0424`, `val_mae: 0.1505` (stagnan)
-
-**Insight dari Pola ini:**
-
-* **Konvergensi Cepat:** Model tampaknya belajar dengan sangat cepat. `val_loss` mencapai nilai rendah cukup cepat (dari 0.0426 di Epoch 1 ke 0.0424 di Epoch 3).
-* **Potensi Early Stopping:** Mengingat `patience=3`, jika `val_loss` tetap di `0.0424` atau tidak membaik secara signifikan selama Epoch 4, 5, dan 6, maka `EarlyStopping` kemungkinan besar akan menghentikan pelatihan setelah Epoch 6 atau 7. Ini karena tidak ada perbaikan pada `val_loss` selama 3 epoch berturut-turut (dari Epoch 4 hingga 6).
-* **Tidak Ada Overfitting yang Jelas (Sejauh Ini):** Perbedaan antara `loss` pelatihan dan `val_loss` tidak terlalu besar dan `val_loss` tidak mulai meningkat. Ini menunjukkan bahwa pada epoch ini, model belum menunjukkan tanda-tanda *overfitting* yang signifikan. `EarlyStopping` akan memastikan bahwa model tidak *overfit* jika *val_loss* mulai meningkat di epoch-epoch berikutnya.
-
-**Kesimpulan Umum:**
-
-Kode ini menunjukkan praktik terbaik dalam melatih model Deep Learning:
-
-1.  **Model Arsitektur yang Jelas:** Didefinisikan dalam `RecommenderNet`.
-2.  **Kompilasi yang Tepat:** Memilih fungsi loss, optimizer, dan metrik yang sesuai.
-3.  **Regularisasi Implisit dan Eksplisit:** Meskipun regularisasi L2 pada embedding adalah eksplisit, `EarlyStopping` bertindak sebagai bentuk regularisasi implisit yang sangat efektif.
-4.  **Pemantauan Kinerja Validasi:** Menggunakan `validation_data` dan `monitor='val_loss'` adalah kunci untuk pelatihan yang efektif dan pencegahan *overfitting*.
-
-Hasil awal menunjukkan bahwa model belajar dengan cepat dan `EarlyStopping` akan sangat membantu dalam menemukan titik konvergensi optimal tanpa membuang-buang sumber daya komputasi atau menghadapi masalah *overfitting*.
+* *Loss* dan *MAE* pada data pelatihan cenderung menurun.
+* *val_loss* dan *val_mae* juga menunjukkan pola penurunan dan stabilisasi, yang menandakan model belajar dengan baik tanpa *overfitting* yang signifikan di awal.
+* Waktu per *step* (`4ms/step`) konsisten, menunjukkan efisiensi pelatihan.
 
 ## Penggunaan Rekomendasi
 
@@ -625,65 +577,208 @@ Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip den
 **2. Collaborative Filtering Recommendation**
 **Prediksi Rating dan Rekomendasi Film**
 
-![Output Prediksi](Output_Prediksi.png)
+```
+77/77 ━━━━━━━━━━━━━━━━━━━━ 0s 4ms/step
+Showing recommendations for users: U99109
+==============================
 
-1.  **Prediksi Rating (`ratings = model.predict(user_movie_array).flatten()`):**
-    * Model yang telah dilatih digunakan untuk memprediksi rating untuk setiap film dalam `user_movie_array` (yaitu, film-film yang belum ditonton oleh pengguna). Hasilnya di-flatten menjadi array 1D.
+Film with high ratings from user
+------------------------------
+Toy Story (1995)
+Star Wars: Episode V - The Empire Strikes Back (1980)
+Fried Green Tomatoes (1991)
+Star Wars: Episode I - The Phantom Menace (1999)
+Amelie (Fabuleux destin d'Amélie Poulain, Le) (2001)
 
-2.  **Mengambil Top Rekomendasi (`top_ratings_indices` & `recommended_movie_ids`):**
-    * `top_ratings_indices = ratings.argsort()[-10:][::-1]`: Mengurutkan prediksi rating secara menurun dan mengambil indeks 10 film teratas. Ini adalah film-film dengan prediksi rating tertinggi.
-    * `recommended_movie_ids`: Menggunakan indeks ini untuk mendapatkan `movie_id` asli dari film-film yang direkomendasikan.
+Top 10 movie recommendation
+------------------------------
+Black Cat, White Cat (Crna macka, beli macor) (1998)
+Good Morning (Ohayô) (1959)
+Bang Boom Bang - Ein todsicheres Ding (1999)
+Bitter Tears of Petra von Kant, The (bitteren Tränen der Petra von Kant, Die) (1972)
+Canterbury Tale, A (1944)
+South of the Border (2009)
+Mugabe and the White African (2009)
+Century of the Self, The (2002)
+What We Do in the Shadows (2014)
+Timbuktu (2014)
+```
 
-3.  **Menampilkan Film dengan Rating Tertinggi dari Pengguna (`top_movies`):**
-    * Kode ini mengambil 5 film teratas yang *sudah ditonton dan diberi rating tinggi* oleh pengguna (`movies_watched_by_user.sort_values(by='rating', ascending=False).head(5)`).
-    * Ini berfungsi sebagai **referensi** atau "garis dasar" untuk memahami preferensi historis pengguna.
+1.  **Proses Rekomendasi:**
+    * Kode ini pertama-tama menggunakan `model.predict()` untuk memprediksi *rating* yang mungkin diberikan oleh `user_array` (kemungkinan merepresentasikan pengguna `U99100`) untuk semua film.
+    * Kemudian, ia mengidentifikasi 10 film dengan prediksi *rating* tertinggi (`top_ratings_indices`).
+    * *Movie ID* dari film-film yang direkomendasikan (`recommended_movie_ids`) diambil, dengan pengecualian film-film yang mungkin sudah ditonton oleh pengguna (meskipun logika `movies_not_watched[0]` perlu diperiksa lebih lanjut untuk memastikan relevansinya dengan pengguna saat ini).
+    * Terakhir, judul film-film yang direkomendasikan ini ditampilkan.
 
-4.  **Menampilkan Rekomendasi Teratas:**
-    * Kode ini kemudian mencetak judul-judul film dari `recommended_movie_ids` yang dihasilkan oleh model.
+2.  **Preferensi Pengguna (`U99100`):**
+    * Bagian "Film with high ratings from user" menunjukkan film-film yang memiliki *rating* tinggi dari pengguna `U99100` di masa lalu. Film-film ini mencakup:
+        * "Toy Story (1995)"
+        * "Star Wars: Episode V - The Empire Strikes Back (1980)"
+        * "Fried Green Tomatoes (1991)"
+        * "Star Wars: Episode I - The Phantom Menace (1999)"
+        * "Amelie (Fabuleux destin d'Amelie Poulain, Le) (2001)"
+    * Ini memberikan gambaran awal tentang selera pengguna, yaitu film-film animasi, fiksi ilmiah, drama, dan komedi/romansa dari berbagai era.
 
-**Output:**
+3.  **Rekomendasi Teratas untuk Pengguna (`U99100`):**
+    * Daftar "Top 10 movie recommendation" adalah hasil utama dari sistem rekomendasi. Film-film yang direkomendasikan adalah:
+        * "Black Cat, White Cat (Crna macka, beli macor) (1998)"
+        * "Good Morning (Ohaio) (1959)"
+        * "Bang Boom Bang - Ein todsicheres Ding (1999)"
+        * "Bitter Tears of Petra von Kant, The (bitteren Tränen der Petra von Kant, Die) (1972)"
+        * "Canterbury Tales, A (1964)"
+        * "South of the Border (2009)"
+        * "Mugabe and the White African (2009)"
+        * "Century of the Self, The (2002)"
+        * "What Do We Do in the Shadows (2014)"
+        * "Tambuktu (2014)"
 
-* **`Showing recommendations for users: U(user_id:0d4d)`:** Menunjukkan `user_id` yang sedang diproses.
-* **`Film with high ratings from user`:**
-    * Menampilkan 5 film teratas yang diberi rating tinggi oleh pengguna tersebut (misalnya, `Twelve Monkeys`, `Usual Suspects`, `Godfather`, dll.). Ini adalah **preferensi historis** pengguna.
-* **`Top 10 movie recommendation`:**
-    * Menampilkan 10 film yang direkomendasikan oleh model (misalnya, `Stroszek`, `Winter Light`, `Man Escaped`, dll.). Ini adalah **prediksi model** berdasarkan pembelajaran.
+**Analisis Hasil Rekomendasi:**
+
+* **Diversitas:** Daftar rekomendasi ini menunjukkan diversitas yang signifikan dibandingkan dengan film-film yang sebelumnya disukai oleh pengguna. Film-film yang direkomendasikan mencakup judul-judul yang tidak terlalu umum di *mainstream* Hollywood, seperti film Eropa ("Black Cat, White Cat", "Bitter Tears of Petra von Kant"), film dokumenter ("Century of the Self", "Mugabe and the White African"), atau film dari berbagai genre dan dekade.
+* **Potensi Eksplorasi:** Jika model ini adalah sistem *collaborative filtering*, maka rekomendasi yang beragam ini mungkin menunjukkan bahwa model menemukan pengguna lain dengan pola preferensi yang serupa, yang telah menonton dan menyukai film-film ini, meskipun genre atau popularitasnya berbeda dengan film-film yang sebelumnya disukai oleh `U99100`. Ini adalah kekuatan dari *collaborative filtering*—mampu merekomendasikan item "kejutan" yang mungkin tidak ditemukan melalui pencocokan genre langsung.
+* **Kualitas Rekomendasi:** Untuk menilai kualitas rekomendasi secara lebih mendalam, diperlukan evaluasi lebih lanjut (misalnya, dengan meminta *feedback* dari pengguna atau membandingkan dengan *ground truth* jika tersedia). Namun, secara teknis, proses ini menunjukkan bahwa model berhasil memprediksi *rating* dan menyaring film yang paling mungkin disukai.
+
+Secara keseluruhan, gambar ini mendemonstrasikan tahapan akhir dari sistem rekomendasi, yaitu penyajian rekomendasi film yang dipersonalisasi kepada pengguna berdasarkan prediksi model dan riwayat preferensi mereka.
+
  
 **Rekomendasi Top-5 untuk beberapa pengguna sampel**
+```
 
-![Output Top5](Output_Top5.png)
+User: 106249
+========================================
+76/76 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step
+Top 5 movie recommendation:
+------------------------------
+  - Good Morning (Ohayô) (1959)
+  - South of the Border (2009)
+  - Mugabe and the White African (2009)
+  - Century of the Self, The (2002)
+  - What We Do in the Shadows (2014)
 
-1.  **Iterasi Pengguna (`for user_id in users_to_recommend`):**
-    * `users_to_recommend = ratings_df.sample(5).tolist()`: Kode ini secara acak memilih 5 `user_id` dari `ratings_df`. Loop kemudian akan mengulang seluruh proses rekomendasi untuk setiap pengguna ini.
+User: 42424
+========================================
+64/64 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Top 5 movie recommendation:
+------------------------------
+  - Citizen Kane (1941)
+  - Rushmore (1998)
+  - Rashomon (Rashômon) (1950)
+  - Spirited Away (Sen to Chihiro no kamikakushi) (2001)
+  - Good Morning (Ohayô) (1959)
 
-2.  **Proses Rekomendasi (Diulang untuk Setiap Pengguna):**
-    * Untuk setiap `user_id` dalam `users_to_recommend`, langkah-langkah berikut diulang:
-        * Identifikasi film yang sudah ditonton (`movies_watched_by_user`).
-        * Identifikasi film yang belum ditonton (`movies_not_watched`).
-        * **Penting:** Ada *check* `if not movies_not_watched: continue` untuk melewati pengguna yang tidak memiliki film yang belum ditonton (atau tidak ada film yang bisa direkomendasikan). Ini adalah penanganan *edge case* yang baik.
-        * Siapkan input model (`user_movie_array`) dengan `user_encoder` yang sesuai dan film-film yang belum ditonton.
-        * Prediksi rating untuk film-film yang belum ditonton (`ratings_pred`).
-        * Ambil indeks 5 film teratas dengan prediksi rating tertinggi (`top_ratings_indices = ratings_pred.argsort()[-5:][::-1]`).
-        * Dapatkan `movie_id` dari film-film yang direkomendasikan (`recommended_movie_ids`).
-        * Cetak `user_id` dan judul film-film rekomendasi Top-5. Jika tidak ada rekomendasi, cetak pesan "Could not generate recommendations."
+User: 114720
+========================================
+71/71 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Top 5 movie recommendation:
+------------------------------
+  - Citizen Kane (1941)
+  - Good Morning (Ohayô) (1959)
+  - South of the Border (2009)
+  - Mugabe and the White African (2009)
+  - Century of the Self, The (2002)
 
-**Output:**
+User: 78419
+========================================
+77/77 ━━━━━━━━━━━━━━━━━━━━ 1s 7ms/step
+Top 5 movie recommendation:
+------------------------------
+  - Good Morning (Ohayô) (1959)
+  - South of the Border (2009)
+  - Mugabe and the White African (2009)
+  - Century of the Self, The (2002)
+  - What We Do in the Shadows (2014)
 
-Output menunjukkan hasil rekomendasi Top-5 untuk setiap pengguna sampel yang dipilih secara acak. Anda dapat melihat beberapa blok output yang mirip, masing-masing dimulai dengan indikator proses (misalnya, `77/77`) dan diikuti dengan daftar 5 film yang direkomendasikan.
+User: 135523
+========================================
+78/78 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Top 5 movie recommendation:
+------------------------------
+  - Good Morning (Ohayô) (1959)
+  - South of the Border (2009)
+  - Mugabe and the White African (2009)
+  - Century of the Self, The (2002)
+  - What We Do in the Shadows (2014)
+```
 
-* Setiap blok output menampilkan "Top 5 movie recommendation" diikuti oleh daftar 5 film.
-* Perhatikan bahwa daftar rekomendasi dapat bervariasi antar pengguna, yang menunjukkan personalisasi dari sistem rekomendasi.
-* Misalnya, satu pengguna mendapatkan `Stroszek`, `Winter Light`, `Man Escaped`, `Marriage of Maria Braun`, `More Than Money`.
-* Pengguna lain mungkin mendapatkan daftar yang sedikit berbeda atau sama, tergantung pada preferensi mereka dan bagaimana model memprediksi kesukaan mereka. Ada beberapa tumpang tindih dalam daftar rekomendasi yang ditampilkan, seperti `Stroszek`, `Winter Light`, `Marriage of Maria Braun`, dan `More Than Money` muncul beberapa kali. Ini bisa menunjukkan film-film tersebut adalah rekomendasi "kuat" atau umum dari model.
+1.  **Fungsi Kode:**
+    * Kode ini mengambil 5 `userId` secara acak sebagai sampel.
+    * Untuk setiap pengguna, ia mengidentifikasi film yang sudah mereka tonton (`watched_movie_ids`).
+    * Kemudian, ia menemukan film-film yang **belum ditonton** oleh pengguna tersebut dan yang ada dalam pemetaan `movie_to_movie_encoded`.
+    * Kode ini memvalidasi jika tidak ada film yang belum ditonton dan akan melompati rekomendasi untuk pengguna tersebut.
+    * Setelah itu, ia mengambil *encoded user* dan *encoded movies not watched* untuk membuat `user_movie_array`.
+    * Model (`model.predict()`) digunakan untuk memprediksi *rating* yang mungkin diberikan oleh pengguna untuk film-film yang belum ditonton.
+    * 5 film dengan prediksi *rating* tertinggi dipilih sebagai rekomendasi.
+    * Akhirnya, judul-judul film yang direkomendasikan ini ditampilkan.
+
+2.  **Hasil Rekomendasi:**
+    * **Pengguna 186249:**
+        * Top 5 rekomendasi film:
+            * Good Morning (Ohaio) (1959)
+            * South of the Border (2009)
+            * Mugabe and the White African (2009)
+            * Century of the Self, The (2002)
+            * What Do We Do in the Shadows (2014)
+        * Daftar ini *identik* dengan rekomendasi yang terlihat pada pengujian sebelumnya untuk beberapa pengguna (seperti pada tangkapan layar sebelumnya).
+    * **Pengguna 42424:**
+        * Top 5 rekomendasi film:
+            * Citizen Kane (1941)
+            * Rushmore (1998)
+            * Rashomon (Rashômon) (1950)
+            * Spirited Away (Sen to Chihiro no kamikakushi) (2001)
+            * Good Morning (Ohaio) (1959)
+        * Daftar rekomendasi untuk pengguna ini **berbeda secara signifikan** dari rekomendasi yang diberikan kepada Pengguna 186249.
+
+**Analisis dan Implikasi:**
+
+* **Personalisasi yang Terjadi:** Perbedaan daftar rekomendasi antara Pengguna 186249 dan Pengguna 42424 adalah *bukti nyata* bahwa sistem rekomendasi ini **mampu melakukan personalisasi**. Ini merupakan peningkatan penting dibandingkan pengamatan sebelumnya di mana semua pengguna menerima rekomendasi yang sama.
+* **Variasi Kualitas Personalisasi:**
+    * Untuk **Pengguna 186249**, daftar rekomendasi masih tampak "generik" atau mungkin merepresentasikan film-film yang memiliki prediksi *rating* tinggi secara global atau sangat disukai oleh mayoritas pengguna, tanpa personalisasi yang kuat. Ini bisa terjadi jika pengguna ini memiliki riwayat interaksi yang minim (*cold start user*) atau preferensi mereka tidak terlalu khas dibandingkan dengan pengguna lain.
+    * Untuk **Pengguna 42424**, daftar rekomendasi lebih spesifik dan mencakup film-film klasik yang sangat diakui ("Citizen Kane", "Rashomon") serta film animasi Jepang yang populer ("Spirited Away"). Ini menunjukkan bahwa model berhasil menangkap preferensi unik pengguna ini dan merekomendasikan film yang lebih sesuai dengan selera mereka, yang kemungkinan didasarkan pada pola tontonan mereka atau pengguna lain dengan preferensi serupa.
+* **Film Populer/Universal:** Kehadiran "Good Morning (Ohaio)" di kedua daftar rekomendasi (meskipun di posisi yang berbeda) menunjukkan bahwa film ini mungkin memiliki *rating* prediksi yang sangat tinggi secara universal di dalam model, membuatnya sering muncul di daftar rekomendasi, bahkan untuk pengguna dengan preferensi yang berbeda.
+
+Secara keseluruhan, gambar ini menunjukkan bahwa sistem rekomendasi telah menunjukkan kemampuannya untuk melakukan personalisasi yang bervariasi antar pengguna. Namun, perlu dicatat bahwa tingkat personalisasi mungkin berbeda tergantung pada karakteristik data interaksi masing-masing pengguna.
 
 ## Evaluasi Model
 **Evaluasi Precision@K untuk Content-Based Filtering**
 
 ```
-Pengguna: 1, Total Rekomendasi: 10, Hits (film yang sudah disukai): 1
-Precision@10 for user 1: 0.1
-Pengguna: 118205, Total Rekomendasi: 10, Hits (film yang sudah disukai): 3
-Precision@10 for user 118205: 0.3
+========================================
+Pengguna         : 1
+Total Rekomendasi: 10
+Hits (sudah disukai): 1
+Precision@10      : 0.10
+----------------------------------------
+Daftar Rekomendasi:
+ 1. Metropolis (1927)
+ 2. Last Samurai, The (2003)
+ 3. Three Kings (1999)
+ 4. Stir of Echoes (1999)
+ 5. Miami Vice (2006)
+ 6. Seven (a.k.a. Se7en) (1995)
+ 7. Flatliners (1990)
+ 8. 12 Angry Men (1957)
+ 9. Brigadoon (1954)
+10. Tekkonkinkreet (Tekkon kinkurîto) (2006)
+========================================
+
+========================================
+Pengguna         : 118205
+Total Rekomendasi: 10
+Hits (sudah disukai): 5
+Precision@10      : 0.50
+----------------------------------------
+Daftar Rekomendasi:
+ 1. Metropolis (1927)
+ 2. Last Samurai, The (2003)
+ 3. Three Kings (1999)
+ 4. Batman & Robin (1997)
+ 5. Fantasia 2000 (1999)
+ 6. Blindness (2008)
+ 7. Stir of Echoes (1999)
+ 8. Miami Vice (2006)
+ 9. Devil's Double, The (2011)
+10. Flatliners (1990)
+========================================
 ```
 - Tujuan output ini untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
 
@@ -699,7 +794,7 @@ Precision@10 for user 118205: 0.3
 
 **Visualisasi Collaborative Filtering**
 
-![Visualisasi Collaborative Filtering ](Visualisasi_Collaborative_Filtering.png)
+![Visualisasi Metrics](Metrics.png)
 
 Grafik ini menunjukkan performa model selama pelatihan.
 - Loss (Train & Validation): Keduanya menurun tajam di awal lalu mendatar. Ini menunjukkan model belajar dengan cepat dan kemudian konvergen. Val Loss sedikit lebih rendah dan lebih stabil daripada - Train Loss, yang jarang terjadi tetapi bisa mengindikasikan bahwa data validasi mungkin sedikit lebih "mudah" atau distribusi yang berbeda, atau regularization bekerja dengan sangat baik.
@@ -708,7 +803,7 @@ Grafik ini menunjukkan performa model selama pelatihan.
 
 **Evaluasi Collaborative Filtering**
 ```
-125002/125002 ━━━━━━━━━━━━━━━━━━━━ 155s 1ms/step
+125002/125002 ━━━━━━━━━━━━━━━━━━━━ 151s 1ms/step
 MAE (Mean Absolute Error): 0.1504
 MSE (Mean Squared Error): 0.0388
 ```
@@ -726,7 +821,10 @@ MSE (Mean Squared Error): 0.0388
   - MSE (Mean Squared Error): 0.0388: Ini adalah rata-rata kuadrat selisih. Nilai yang rendah ini juga mengindikasikan kinerja model yang baik dalam memprediksi rating.
 
 Kesimpulan:
+
 Model menunjukkan kinerja yang baik pada data validasi, dengan MAE sekitar 0.15 dan MSE sekitar 0.039. Angka-angka ini konsisten dengan metrik validasi yang terlihat pada plot pelatihan sebelumnya, menegaskan bahwa model telah belajar dengan efektif dan mampu membuat prediksi rating yang akurat pada data yang belum pernah dilihat sebelumnya.
+
+
 ### Metrik Evaluasi
 
 1. **Prediksi Rating (Regresi):**
@@ -806,7 +904,7 @@ $$
 \text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
 $$
 
-### ✅ a. **TF – Term Frequency**
+### a. **TF – Term Frequency**
 
 $$
 \text{TF}(t, d) = \frac{f_{t,d}}{\sum_{k} f_{k,d}}
@@ -816,7 +914,7 @@ $$
 * Penyebut: total jumlah kata dalam dokumen
 * **Makna:** seberapa sering kata muncul dalam dokumen tersebut
 
-### ✅ b. **IDF – Inverse Document Frequency**
+### b. **IDF – Inverse Document Frequency**
 
 $$
 \text{IDF}(t) = \log \left( \frac{N}{n_t} \right)
@@ -844,6 +942,47 @@ $$
 
 ## Kesimpulan
 
+**Laporan Perbandingan Model Sistem Rekomendasi: Collaborative Filtering vs Content-Based Filtering**
+
+---
+
+### 1. Pendahuluan
+
+Sistem rekomendasi merupakan komponen penting dalam platform digital untuk membantu pengguna menemukan item yang relevan. Dua pendekatan umum yang digunakan adalah Collaborative Filtering (CF) dan Content-Based Filtering (CBF). Laporan ini membandingkan kedua pendekatan berdasarkan implementasi dan evaluasi terhadap dataset MovieLens 20M.
+
+---
+
+### 2. Evaluasi Model
+
+#### a. Collaborative Filtering (CF)
+
+Collaborative Filtering mengevaluasi performa prediksi rating menggunakan metrik:
+
+* **Mean Absolute Error (MAE):** 0.1504
+* **Mean Squared Error (MSE):** 0.0388
+
+Hasil ini menunjukkan bahwa model CF mampu memprediksi rating dengan tingkat kesalahan yang sangat rendah, menandakan akurasi yang tinggi dalam memahami preferensi pengguna.
+
+#### b. Content-Based Filtering (CBF)
+
+Content-Based Filtering dievaluasi menggunakan metrik **Precision\@10**, dengan hasil bervariasi tergantung pengguna:
+
+* Precision\@10 berkisar antara **0.1 hingga 0.3**
+
+Hal ini menunjukkan bahwa performa CBF cukup fluktuatif dan belum seakurat CF dalam merekomendasikan film yang benar-benar disukai pengguna.
+
+---
+
+### 3. Perbandingan Kelebihan dan Kekurangan
+
+| Aspek          | Collaborative Filtering (CF)                                                                        | Content-Based Filtering (CBF)                                                                             |
+| -------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Kelebihan**  | - Akurat bila data cukup<br>- Menangkap pola kompleks<br>- Tidak perlu fitur konten                 | - Cocok untuk item baru<br>- Rekomendasi personal<br>- Tidak tergantung komunitas                         |
+| **Kekurangan** | - Tidak efektif pada data jarang<br>- Tidak bisa tangani item baru<br>- Butuh banyak data interaksi | - Bergantung pada kualitas fitur<br>- Kurang fleksibel dalam pola<br>- Cenderung sempit dalam rekomendasi |
+
+---
+
+Berdasarkan hasil evaluasi, **Collaborative Filtering** memberikan hasil terbaik dalam akurasi prediksi rating pengguna, terbukti dari nilai MAE dan MSE yang rendah. Meskipun Content-Based Filtering masih relevan terutama untuk menangani cold-start problem, pendekatan CF lebih unggul secara keseluruhan.
 
 
 
