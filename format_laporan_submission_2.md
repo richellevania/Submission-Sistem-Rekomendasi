@@ -46,7 +46,7 @@ Menjelaskan tujuan proyek yang menjawab pernyataan masalah:
 
     ### Solution statements
     - Content-Based Filtering: Menggunakan TF-IDF vectorization pada genre film, dan menghitung cosine similarity antar film untuk menghasilkan rekomendasi berdasarkan kemiripan konten.
-    - Collaborative Filtering: Menggunakan Neural Network (RecommenderNet) lebih kompleks tapi fleksibel, cocok untuk sistem yang ingin belajar interaksi non-linear dan bisa dikembangkan dengan side features (genre, usia pengguna, dll).
+    - Collaborative Filtering: Mengembangkan sistem rekomendasi berbasis collaborative filtering menggunakan model deep learning berbasis embedding (RecommenderNet). Model ini mempelajari representasi laten pengguna dan film melalui layer embedding, memungkinkan sistem menangkap pola preferensi kompleks antar pengguna dan item.
 
 ## Data Understanding
 
