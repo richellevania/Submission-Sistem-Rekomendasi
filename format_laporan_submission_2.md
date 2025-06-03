@@ -298,15 +298,15 @@ Output final_data.head() menunjukkan lima baris pertama dari dataframe yang diha
 
 ## Data Preparation
 - Cek Missing Values
-```
-	0
-userId	0
-movieId	0
-title	0
-genres	0
-rating	0
-tag	19874181
-```
+| Kolom   | Jumlah Missing Values |
+|---------|------------------------|
+| userId  | 0                      |
+| movieId | 0                      |
+| title   | 0                      |
+| genres  | 0                      |
+| rating  | 0                      |
+| tag     | 19,874,181             |
+
 Hampir semua kolom (userId, movieId, title, genres, rating) tidak memiliki nilai yang hilang, yang berarti data pada kolom-kolom ini sudah lengkap. Namun, kolom tag memiliki jumlah nilai yang hilang yang sangat besar, yaitu 19.874.181. Ini mengkonfirmasi pengamatan sebelumnya bahwa kolom 'tag' mayoritas berisi NaN setelah operasi penggabungan. Jumlah nilai hilang yang sangat signifikan ini menunjukkan bahwa informasi tag tidak tersedia untuk sebagian besar entri film dan rating dalam dataset gabungan. Hal ini bisa menjadi masalah serius jika analisis atau model yang akan dibangun sangat bergantung pada informasi tag. Langkah selanjutnya mungkin perlu mempertimbangkan strategi untuk menangani nilai yang hilang pada kolom 'tag', seperti mengisi dengan nilai tertentu (misalnya, 'no_tag' atau 'unknown'), menghapus baris yang memiliki nilai hilang pada kolom tag (jika jumlahnya tidak terlalu besar dan tidak signifikan), atau melakukan analisis terpisah untuk entri yang memiliki tag dan yang tidak.
 
 - Membersihkan Missing Value
