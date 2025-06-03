@@ -364,15 +364,21 @@ array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
        'musical', 'mystery', 'noir', 'romance', 'sci', 'thriller', 'war',
        'western'], dtype=object)
 ```
+Langkah ini menyiapkan data genre untuk diubah menjadi format numerik yang dapat digunakan oleh model Content Based Filtering. TF-IDF akan memberikan bobot pada setiap genre untuk setiap film, mencerminkan seberapa penting genre tersebut bagi film tertentu dalam konteks seluruh koleksi film. Ini adalah langkah krusial dalam membangun representasi konten film.
+
 Output setelah mengubah representasi fitur teks menjadi matriks numerik
 
 ![Output Matriks ](Output_Matriks.png)
+
+Output ini menujukkan bahwa berhasil mengubah data tekstual (genre/fitur) menjadi representasi numerik yang terstruktur dan siap digunakan untuk analisis lebih lanjut dalam pengembangan model rekomendasi berbasis konten. Output tabel dengan skor TF-IDF per film dan per fitur adalah langkah penting dalam membangun matriks kesamaan item atau profil pengguna.
 
 * **Cosine Similarity**
 
 Output matriks similiarity
 
 ![Output Matriks Similiarity ](Output_Matriks_Similiarity.png)
+
+Output ini menujukkan bahwa berhasil mengorganisir hasil perhitungan cosine similarity ke dalam format DataFrame yang sangat mudah digunakan dan diinterpretasikan. Dengan indeks dan kolom yang berisi judul film, matriks ini siap digunakan sebagai inti dari mesin rekomendasi berbasis konten. Ini memungkinkan identifikasi cepat film-film yang memiliki kemiripan konten tinggi, yang merupakan dasar untuk memberikan rekomendasi yang relevan kepada pengguna.
 
 ### Preparation untuk Collaborative Filtering
 - **Encode userid** bertujuan untuk melakukan encoding pada userId yang ada di DataFrame. Artinya, setiap userId unik akan dipetakan ke dalam bentuk integer berurutan (misalnya, dari 0 hingga N-1, di mana N adalah jumlah pengguna unik). Ini adalah langkah umum dalam sistem rekomendasi, terutama ketika mempersiapkan data untuk model yang memerlukan input numerik atau ketika bekerja dengan ID yang tidak berurutan.
@@ -598,59 +604,6 @@ Kode ini menunjukkan praktik terbaik dalam melatih model Deep Learning:
 
 Hasil awal menunjukkan bahwa model belajar dengan cepat dan `EarlyStopping` akan sangat membantu dalam menemukan titik konvergensi optimal tanpa membuang-buang sumber daya komputasi atau menghadapi masalah *overfitting*.
 
-
-## Evaluasi Model
-**Evaluasi Precision@K untuk Content-Based Filtering**
-
-```
-Pengguna: 1, Total Rekomendasi: 10, Hits (film yang sudah disukai): 1
-Precision@10 for user 1: 0.1
-Pengguna: 118205, Total Rekomendasi: 10, Hits (film yang sudah disukai): 3
-Precision@10 for user 118205: 0.3
-```
-- Tujuan: Kode ini bertujuan untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
-
-- Penjelasan Metrik Precision@K:
-  - K: Menunjukkan jumlah rekomendasi teratas yang dievaluasi. Dalam contoh ini, K adalah 10.
-  - Hits: Jumlah film dalam rekomendasi teratas (K film) yang sebenarnya disukai oleh pengguna (yaitu, film yang sudah mereka tonton dan beri rating tinggi, atau film yang sudah ada dalam daftar "disukai" mereka).
-  - Precision@K: Dihitung sebagai Hits / K. Semakin tinggi nilainya, semakin baik sistem rekomendasi tersebut.
-
-- Kesimpulan Utama:
-  - Sistem rekomendasi ini sedang dievaluasi pada kemampuannya untuk merekomendasikan film yang sudah terbukti disukai oleh pengguna, bukan untuk merekomendasikan film baru yang belum pernah mereka tonton.
-  - Metrik Precision@K digunakan untuk kuantifikasi.
-  - Ada variasi kinerja yang signifikan antara pengguna yang berbeda (Pengguna 1 memiliki Precision@10 0.1, sementara Pengguna 118205 memiliki Precision@10 0.3). Hal ini menunjukkan bahwa sistem mungkin bekerja lebih baik untuk beberapa pengguna daripada yang lain, atau data pengguna untuk beberapa pengguna lebih "mudah" untuk direkomendasikan.
-  - Komentar dalam kode menyoroti batasan evaluasi offline dan tantangan dalam menentukan "ground truth" untuk rekomendasi yang sebenarnya. Sistem mungkin perlu diuji dengan metrik lain atau dalam skenario online untuk evaluasi yang lebih komprehensif.
-
-**Visualisasi Collaborative Filtering**
-![Visualisasi Collaborative Filtering ](Visualisasi_Collaborative_Filtering.png)
-
-Grafik ini menunjukkan performa model selama pelatihan.
-- Loss (Train & Validation): Keduanya menurun tajam di awal lalu mendatar. Ini menunjukkan model belajar dengan cepat dan kemudian konvergen. Val Loss sedikit lebih rendah dan lebih stabil daripada - Train Loss, yang jarang terjadi tetapi bisa mengindikasikan bahwa data validasi mungkin sedikit lebih "mudah" atau distribusi yang berbeda, atau regularization bekerja dengan sangat baik.
-- MAE (Train & Validation): Mirip dengan loss, MAE juga menurun dan mendatar. Val MAE juga sedikit lebih rendah dari Train MAE.
-- Tidak Ada Overfitting: Tidak ada tanda-tanda overfitting yang jelas karena Val Loss dan Val MAE tidak mulai meningkat setelah beberapa epoch. Model tampak stabil dan konvergen. Secara singkat, model telah belajar dengan baik, mencapai konvergensi cepat, dan tidak menunjukkan overfitting yang signifikan.
-
-**Evaluasi Collaborative Filtering**
-```
-125002/125002 ━━━━━━━━━━━━━━━━━━━━ 155s 1ms/step
-MAE (Mean Absolute Error): 0.1504
-MSE (Mean Squared Error): 0.0388
-```
-
-1. Prediksi (y_pred_val = model.predict(x_val).flatten()): Model yang telah dilatih digunakan untuk membuat prediksi rating pada dataset validasi (x_val). .flatten() digunakan untuk mengubah output prediksi menjadi array 1D.
-
-2. Perhitungan Metrik:
-  - mae = mean_absolute_error(y_val, y_pred_val): Menghitung Mean Absolute Error (MAE) antara rating sebenarnya (y_val) dan rating prediksi (y_pred_val).
-  - mse = mean_squared_error(y_val, y_pred_val): Menghitung Mean Squared Error (MSE).
-
-3. Output Hasil:
-  - 125002/125002: Menunjukkan bahwa model memproses 125.002 sampel dalam data validasi.
-  - 155s 1ms/step: Proses prediksi membutuhkan waktu 155 detik (sekitar 2.5 menit) dengan rata-rata 1 milidetik per langkah/sampel.
-  - MAE (Mean Absolute Error): 0.1504: Ini berarti rata-rata selisih absolut antara rating prediksi dan rating sebenarnya adalah 0.1504. Angka ini cukup rendah, menunjukkan bahwa prediksi model cukup dekat dengan rating sebenarnya.
-  - MSE (Mean Squared Error): 0.0388: Ini adalah rata-rata kuadrat selisih. Nilai yang rendah ini juga mengindikasikan kinerja model yang baik dalam memprediksi rating.
-
-Kesimpulan:
-Model menunjukkan kinerja yang baik pada data validasi, dengan MAE sekitar 0.15 dan MSE sekitar 0.039. Angka-angka ini konsisten dengan metrik validasi yang terlihat pada plot pelatihan sebelumnya, menegaskan bahwa model telah belajar dengan efektif dan mampu membuat prediksi rating yang akurat pada data yang belum pernah dilihat sebelumnya.
-
 ## Penggunaan Rekomendasi
 
 **1. Content-Based Recommendation**
@@ -720,5 +673,179 @@ Output menunjukkan hasil rekomendasi Top-5 untuk setiap pengguna sampel yang dip
 * Perhatikan bahwa daftar rekomendasi dapat bervariasi antar pengguna, yang menunjukkan personalisasi dari sistem rekomendasi.
 * Misalnya, satu pengguna mendapatkan `Stroszek`, `Winter Light`, `Man Escaped`, `Marriage of Maria Braun`, `More Than Money`.
 * Pengguna lain mungkin mendapatkan daftar yang sedikit berbeda atau sama, tergantung pada preferensi mereka dan bagaimana model memprediksi kesukaan mereka. Ada beberapa tumpang tindih dalam daftar rekomendasi yang ditampilkan, seperti `Stroszek`, `Winter Light`, `Marriage of Maria Braun`, dan `More Than Money` muncul beberapa kali. Ini bisa menunjukkan film-film tersebut adalah rekomendasi "kuat" atau umum dari model.
+
+## Evaluasi Model
+**Evaluasi Precision@K untuk Content-Based Filtering**
+
+```
+Pengguna: 1, Total Rekomendasi: 10, Hits (film yang sudah disukai): 1
+Precision@10 for user 1: 0.1
+Pengguna: 118205, Total Rekomendasi: 10, Hits (film yang sudah disukai): 3
+Precision@10 for user 118205: 0.3
+```
+- Tujuan output ini untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
+
+- Penjelasan Metrik Precision@K:
+  - K: Menunjukkan jumlah rekomendasi teratas yang dievaluasi. Dalam contoh ini, K adalah 10.
+  - Hits: Jumlah film dalam rekomendasi teratas (K film) yang sebenarnya disukai oleh pengguna (yaitu, film yang sudah mereka tonton dan beri rating tinggi, atau film yang sudah ada dalam daftar "disukai" mereka).
+  - Precision@K: Dihitung sebagai Hits / K. Semakin tinggi nilainya, semakin baik sistem rekomendasi tersebut.
+
+- Kesimpulan Utama:
+  - Sistem rekomendasi ini sedang dievaluasi pada kemampuannya untuk merekomendasikan film yang sudah terbukti disukai oleh pengguna, bukan untuk merekomendasikan film baru yang belum pernah mereka tonton.
+  - Metrik Precision@K digunakan untuk kuantifikasi.
+  - Ada variasi kinerja yang signifikan antara pengguna yang berbeda (Pengguna 1 memiliki Precision@10 0.1, sementara Pengguna 118205 memiliki Precision@10 0.3). Hal ini menunjukkan bahwa sistem mungkin bekerja lebih baik untuk beberapa pengguna daripada yang lain, atau data pengguna untuk beberapa pengguna lebih "mudah" untuk direkomendasikan.
+
+**Visualisasi Collaborative Filtering**
+
+![Visualisasi Collaborative Filtering ](Visualisasi_Collaborative_Filtering.png)
+
+Grafik ini menunjukkan performa model selama pelatihan.
+- Loss (Train & Validation): Keduanya menurun tajam di awal lalu mendatar. Ini menunjukkan model belajar dengan cepat dan kemudian konvergen. Val Loss sedikit lebih rendah dan lebih stabil daripada - Train Loss, yang jarang terjadi tetapi bisa mengindikasikan bahwa data validasi mungkin sedikit lebih "mudah" atau distribusi yang berbeda, atau regularization bekerja dengan sangat baik.
+- MAE (Train & Validation): Mirip dengan loss, MAE juga menurun dan mendatar. Val MAE juga sedikit lebih rendah dari Train MAE.
+- Tidak Ada Overfitting: Tidak ada tanda-tanda overfitting yang jelas karena Val Loss dan Val MAE tidak mulai meningkat setelah beberapa epoch. Model tampak stabil dan konvergen. Secara singkat, model telah belajar dengan baik, mencapai konvergensi cepat, dan tidak menunjukkan overfitting yang signifikan.
+
+**Evaluasi Collaborative Filtering**
+```
+125002/125002 ━━━━━━━━━━━━━━━━━━━━ 155s 1ms/step
+MAE (Mean Absolute Error): 0.1504
+MSE (Mean Squared Error): 0.0388
+```
+
+1. Prediksi (y_pred_val = model.predict(x_val).flatten()): Model yang telah dilatih digunakan untuk membuat prediksi rating pada dataset validasi (x_val). .flatten() digunakan untuk mengubah output prediksi menjadi array 1D.
+
+2. Perhitungan Metrik:
+  - mae = mean_absolute_error(y_val, y_pred_val): Menghitung Mean Absolute Error (MAE) antara rating sebenarnya (y_val) dan rating prediksi (y_pred_val).
+  - mse = mean_squared_error(y_val, y_pred_val): Menghitung Mean Squared Error (MSE).
+
+3. Output Hasil:
+  - 125002/125002: Menunjukkan bahwa model memproses 125.002 sampel dalam data validasi.
+  - 155s 1ms/step: Proses prediksi membutuhkan waktu 155 detik (sekitar 2.5 menit) dengan rata-rata 1 milidetik per langkah/sampel.
+  - MAE (Mean Absolute Error): 0.1504: Ini berarti rata-rata selisih absolut antara rating prediksi dan rating sebenarnya adalah 0.1504. Angka ini cukup rendah, menunjukkan bahwa prediksi model cukup dekat dengan rating sebenarnya.
+  - MSE (Mean Squared Error): 0.0388: Ini adalah rata-rata kuadrat selisih. Nilai yang rendah ini juga mengindikasikan kinerja model yang baik dalam memprediksi rating.
+
+Kesimpulan:
+Model menunjukkan kinerja yang baik pada data validasi, dengan MAE sekitar 0.15 dan MSE sekitar 0.039. Angka-angka ini konsisten dengan metrik validasi yang terlihat pada plot pelatihan sebelumnya, menegaskan bahwa model telah belajar dengan efektif dan mampu membuat prediksi rating yang akurat pada data yang belum pernah dilihat sebelumnya.
+### Metrik Evaluasi
+
+1. **Prediksi Rating (Regresi):**
+
+   * **Mean Absolute Error (MAE)**
+   * **Mean Squared Error (MSE)**
+
+2. **Prediksi Preferensi/Klasifikasi (Binary atau Top-N Recommendation):**
+
+   * **Precision**
+   * **Recall**
+
+---
+
+### **Penjelasan Cara Kerja Metrik**
+
+#### 1. **Mean Absolute Error (MAE)**
+
+Digunakan untuk mengukur seberapa besar perbedaan absolut rata-rata antara rating yang diprediksi dengan rating sebenarnya.
+
+$$
+\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+$$
+
+* Lebih toleran terhadap outlier dibanding MSE.
+* Semakin kecil nilai MAE, semakin akurat model.
+
+#### 2. **Mean Squared Error (MSE)**
+
+Mengukur rata-rata dari kuadrat selisih antara prediksi dan nilai aktual. MSE lebih sensitif terhadap kesalahan besar.
+
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+* Cocok digunakan ketika kita ingin menghukum kesalahan besar lebih keras.
+
+#### 3. **Precision**
+
+Digunakan dalam **Top-N Recommendation** untuk mengetahui berapa proporsi item yang direkomendasikan benar-benar relevan.
+
+$$
+\text{Precision} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}}
+$$
+
+$$
+\text{Precision@K} = \frac{\text{Jumlah item relevan dalam top-K rekomendasi}}{K}
+$$
+
+
+* $K$: jumlah item yang direkomendasikan (misalnya 10)
+* $\text{hits}$: jumlah item di antara 10 rekomendasi yang memang disukai pengguna (berdasarkan histori rating tinggi)
+
+## Kesimpulan
+
+| Komponen         | Penjelasan                                                        |
+| ---------------- | ----------------------------------------------------------------- |
+| **Precision\@K** | Metrik untuk mengukur akurasi rekomendasi dalam top-K rekomendasi |
+| **Nilai 1.0**    | Semua rekomendasi cocok (ideal)                                   |
+| **Nilai 0.0**    | Tidak ada satupun rekomendasi yang cocok                          |
+
+Berdasarkan evaluasi Precision@K untuk Content-Based Filtering, ini berarti 30% dari film yang direkomendasikan memang cocok dengan selera user.
+
+#### 4. **Recall**
+
+Mengukur seberapa banyak item relevan yang berhasil ditemukan oleh sistem rekomendasi dari seluruh item relevan yang tersedia.
+
+$$
+\text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
+$$
+
+#### 5. **TF-IDF (Term Frequency – Inverse Document Frequency)**
+
+TF-IDF memberi bobot pada setiap kata (dalam kasus ini: *genre*) untuk menilai seberapa penting kata tersebut dalam sebuah dokumen dibandingkan seluruh korpus. Mengubah teks (genre) jadi angka dengan menekankan kata penting.
+
+$$
+\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
+$$
+
+### ✅ a. **TF – Term Frequency**
+
+$$
+\text{TF}(t, d) = \frac{f_{t,d}}{\sum_{k} f_{k,d}}
+$$
+
+* $f_{t,d}$: jumlah kata $t$ dalam dokumen $d$
+* Penyebut: total jumlah kata dalam dokumen
+* **Makna:** seberapa sering kata muncul dalam dokumen tersebut
+
+### ✅ b. **IDF – Inverse Document Frequency**
+
+$$
+\text{IDF}(t) = \log \left( \frac{N}{n_t} \right)
+$$
+
+* $N$: jumlah total dokumen
+* $n_t$: jumlah dokumen yang mengandung kata $t$
+* **Makna:** kata yang muncul di sedikit dokumen dianggap lebih penting
+
+#### 6. **Cosine Similarity**
+
+Cosine similarity mengukur **kemiripan antara dua vektor**.
+
+$$
+\text{cosine\_similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|}
+$$
+
+* $A \cdot B$: **dot product** dua vektor
+* $\|A\|$, $\|B\|$: **panjang (norma)** masing-masing vektor
+* Nilai berkisar antara:
+
+  * **1**: identik (sudut 0°)
+  * **0**: tidak mirip (sudut 90°)
+  * **< 0**: berlawanan (jarang terjadi di TF-IDF)
+
+## Kesimpulan
+
+
+
+
+
+
 
 
