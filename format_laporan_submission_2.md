@@ -251,42 +251,46 @@ Melakukan penggabungan data rating film dengan informasi film (judul dan genre) 
 DataFrame movie_ratings yang ditampilkan menunjukkan beberapa baris pertama dari data yang telah digabungkan. Sebagai contoh, pengguna dengan userId 1 memberikan rating 3.5 untuk film "Jumanji (1995)" yang bergenre "Adventure|Children|Fantasy". Penggabungan data ini merupakan langkah penting dalam analisis data film karena menyatukan informasi dari berbagai sumber, sehingga memudahkan untuk mendapatkan wawasan tentang preferensi pengguna, popularitas film berdasarkan rating, atau bahkan untuk membangun sistem rekomendasi.
 
 - Memeriksa Missing Values
-```
-	0
-userId	0
-movieId	0
-rating	0
-timestamp	0
-title	0
-genres	0
 
-```
+Berikut adalah jumlah nilai yang hilang (missing values) pada setiap kolom dalam dataset:
+
+| Column     | Missing Values |
+|------------|----------------|
+| userId     | 0              |
+| movieId    | 0              |
+| rating     | 0              |
+| timestamp  | 0              |
+| title      | 0              |
+| genres     | 0              |
+
+
 Ini adalah hasil yang sangat baik dalam tahap pra-pemrosesan data, karena ketiadaan missing value berarti data sudah bersih dan tidak memerlukan penanganan khusus seperti imputasi atau penghapusan baris/kolom yang berisi missing value. Hal ini memastikan bahwa analisis atau pemodelan data yang akan dilakukan selanjutnya dapat berjalan tanpa hambatan yang disebabkan oleh data yang tidak lengkap, sehingga menghasilkan analisis yang lebih akurat dan dapat diandalkan.
 
 - Menggabungkan Tags
-```
-	userId	movieId	rating	timestamp	title	genres	tag
-0	1	2	3.5	1112486027	Jumanji (1995)	Adventure|Children|Fantasy	NaN
-1	1	29	3.5	1112484676	City of Lost Children, The (Cité des enfants p...	Adventure|Drama|Fantasy|Mystery|Sci-Fi	NaN
-2	1	32	3.5	1112484819	Twelve Monkeys (a.k.a. 12 Monkeys) (1995)	Mystery|Sci-Fi|Thriller	NaN
-3	1	47	3.5	1112484727	Seven (a.k.a. Se7en) (1995)	Mystery|Thriller	NaN
-4	1	50	3.5	1112484580	Usual Suspects, The (1995)	Crime|Mystery|Thriller	NaN
 
-```
+| userId | movieId | rating | timestamp   | title                                               | genres                                  | tag  |
+|--------|---------|--------|-------------|------------------------------------------------------|------------------------------------------|------|
+| 1      | 2       | 3.5    | 1112486027  | Jumanji (1995)                                       | Adventure\|Children\|Fantasy             | NaN  |
+| 1      | 29      | 3.5    | 1112484676  | City of Lost Children, The (Cité des enfants perdus) | Adventure\|Drama\|Fantasy\|Mystery\|Sci-Fi | NaN  |
+| 1      | 32      | 3.5    | 1112484819  | Twelve Monkeys (a.k.a. 12 Monkeys) (1995)            | Mystery\|Sci-Fi\|Thriller                | NaN  |
+| 1      | 47      | 3.5    | 1112484727  | Seven (a.k.a. Se7en) (1995)                          | Mystery\|Thriller                        | NaN  |
+| 1      | 50      | 3.5    | 1112484580  | Usual Suspects, The (1995)                           | Crime\|Mystery\|Thriller                 | NaN  |
+
+
 Operasi penggabungan (merge) telah dilakukan antara dataframe movie_ratings dan tags. Tujuan dari penggabungan ini adalah untuk menambahkan informasi tag ke dalam data rating film. Namun, dari output movie_ratings_tags.head() yang ditampilkan, kolom 'tag' hanya berisi nilai NaN (Not a Number) untuk semua baris yang terlihat.
 
 Ini mengindikasikan bahwa meskipun penggabungan dilakukan berdasarkan 'userId' dan 'movieId', tidak ada kecocokan tag yang ditemukan untuk entri-entri film awal dalam dataframe movie_ratings. Kemungkinan penyebabnya adalah data tags mungkin tidak memiliki tag yang sesuai untuk film-film ini, atau mungkin ada ketidaksesuaian dalam data 'userId' atau 'movieId' antara kedua dataframe, meskipun hal ini kurang mungkin terjadi jika penggabungan dilakukan dengan benar. Untuk mendapatkan insight yang lebih lengkap, perlu diperiksa lebih lanjut isi dari dataframe tags dan bagaimana distribusi tag yang sebenarnya.
 
 - Final Data
-```
-	userId	movieId	title	genres	rating	tag
-0	1	2	Jumanji (1995)	Adventure|Children|Fantasy	3.5	NaN
-1	1	29	City of Lost Children, The (Cité des enfants p...	Adventure|Drama|Fantasy|Mystery|Sci-Fi	3.5	NaN
-2	1	32	Twelve Monkeys (a.k.a. 12 Monkeys) (1995)	Mystery|Sci-Fi|Thriller	3.5	NaN
-3	1	47	Seven (a.k.a. Se7en) (1995)	Mystery|Thriller	3.5	NaN
-4	1	50	Usual Suspects, The (1995)	Crime|Mystery|Thriller	3.5	NaN
 
-```
+| userId | movieId | title                                               | genres                                      | rating | tag  |
+|--------|---------|------------------------------------------------------|---------------------------------------------|--------|------|
+| 1      | 2       | Jumanji (1995)                                       | Adventure\|Children\|Fantasy                | 3.5    | NaN  |
+| 1      | 29      | City of Lost Children, The (Cité des enfants perdus) | Adventure\|Drama\|Fantasy\|Mystery\|Sci-Fi | 3.5    | NaN  |
+| 1      | 32      | Twelve Monkeys (a.k.a. 12 Monkeys) (1995)            | Mystery\|Sci-Fi\|Thriller                   | 3.5    | NaN  |
+| 1      | 47      | Seven (a.k.a. Se7en) (1995)                          | Mystery\|Thriller                           | 3.5    | NaN  |
+| 1      | 50      | Usual Suspects, The (1995)                           | Crime\|Mystery\|Thriller                    | 3.5    | NaN  |
+
 Dataframe baru bernama final_data telah dibuat dengan memilih kolom-kolom tertentu dari dataframe movie_ratings_tags yang telah ada sebelumnya. Kolom-kolom yang dipilih adalah 'userId', 'movieId', 'title', 'genres', 'rating', dan 'tag'.
 
 Output final_data.head() menunjukkan lima baris pertama dari dataframe yang dihasilkan. Seperti yang telah diamati pada analisis sebelumnya, kolom 'tag' masih menunjukkan nilai NaN (Not a Number) untuk semua baris yang ditampilkan. Hal ini mengkonfirmasi bahwa proses pemilihan kolom tidak mengubah fakta bahwa tidak ada data tag yang cocok untuk film-film awal ini dalam dataframe movie_ratings_tags yang menjadi sumbernya. Dengan kata lain, final_data saat ini masih belum memiliki informasi tag yang lengkap untuk film-film tersebut, sehingga kolom 'tag' belum memberikan nilai tambah dalam analisis ini.
@@ -306,21 +310,29 @@ tag	19874181
 Hampir semua kolom (userId, movieId, title, genres, rating) tidak memiliki nilai yang hilang, yang berarti data pada kolom-kolom ini sudah lengkap. Namun, kolom tag memiliki jumlah nilai yang hilang yang sangat besar, yaitu 19.874.181. Ini mengkonfirmasi pengamatan sebelumnya bahwa kolom 'tag' mayoritas berisi NaN setelah operasi penggabungan. Jumlah nilai hilang yang sangat signifikan ini menunjukkan bahwa informasi tag tidak tersedia untuk sebagian besar entri film dan rating dalam dataset gabungan. Hal ini bisa menjadi masalah serius jika analisis atau model yang akan dibangun sangat bergantung pada informasi tag. Langkah selanjutnya mungkin perlu mempertimbangkan strategi untuk menangani nilai yang hilang pada kolom 'tag', seperti mengisi dengan nilai tertentu (misalnya, 'no_tag' atau 'unknown'), menghapus baris yang memiliki nilai hilang pada kolom tag (jika jumlahnya tidak terlalu besar dan tidak signifikan), atau melakukan analisis terpisah untuk entri yang memiliki tag dan yang tidak.
 
 - Membersihkan Missing Value
-```
-	userId	movieId	title	genres	rating	tag
-7453	65	27866	In My Father's Den (2004)	Drama	4.0	New Zealand
-7461	65	48082	Science of Sleep, The (La science des rêves) (...	Comedy|Drama|Fantasy|Romance	4.5	surreal
-7462	65	48082	Science of Sleep, The (La science des rêves) (...	Comedy|Drama|Fantasy|Romance	4.5	unusual
-7467	65	58652	CJ7 (Cheung Gong 7 hou) (2008)	Children|Comedy|Sci-Fi	5.0	cute
-7468	65	58652	CJ7 (Cheung Gong 7 hou) (2008)	Children|Comedy|Sci-Fi	5.0	emotional
-...	...	...	...	...	...	...
-20259539	138446	55999	Mr. Magorium's Wonder Emporium (2007)	Children|Comedy|Fantasy	2.5	dragged
-20259540	138446	55999	Mr. Magorium's Wonder Emporium (2007)	Children|Comedy|Fantasy	2.5	Jason Bateman
-20259541	138446	55999	Mr. Magorium's Wonder Emporium (2007)	Children|Comedy|Fantasy	2.5	quirky
-20259542	138446	55999	Mr. Magorium's Wonder Emporium (2007)	Children|Comedy|Fantasy	2.5	sad
-20262659	138472	923	Citizen Kane (1941)	Drama|Mystery	3.0	rise to power
+
+#### 5 Baris Awal
+
+| userId | movieId | title                                               | genres                             | rating | tag         |
+|--------|---------|------------------------------------------------------|------------------------------------|--------|-------------|
+| 65     | 27866   | In My Father's Den (2004)                            | Drama                              | 4.0    | New Zealand |
+| 65     | 48082   | Science of Sleep, The (La science des rêves) (...)   | Comedy\|Drama\|Fantasy\|Romance    | 4.5    | surreal     |
+| 65     | 48082   | Science of Sleep, The (La science des rêves) (...)   | Comedy\|Drama\|Fantasy\|Romance    | 4.5    | unusual     |
+| 65     | 58652   | CJ7 (Cheung Gong 7 hou) (2008)                        | Children\|Comedy\|Sci-Fi           | 5.0    | cute        |
+| 65     | 58652   | CJ7 (Cheung Gong 7 hou) (2008)                        | Children\|Comedy\|Sci-Fi           | 5.0    | emotional   |
+
+#### 5 Baris Akhir
+
+| userId  | movieId | title                                           | genres                        | rating | tag            |
+|---------|---------|--------------------------------------------------|-------------------------------|--------|----------------|
+| 138446  | 55999   | Mr. Magorium's Wonder Emporium (2007)           | Children\|Comedy\|Fantasy     | 2.5    | dragged        |
+| 138446  | 55999   | Mr. Magorium's Wonder Emporium (2007)           | Children\|Comedy\|Fantasy     | 2.5    | Jason Bateman  |
+| 138446  | 55999   | Mr. Magorium's Wonder Emporium (2007)           | Children\|Comedy\|Fantasy     | 2.5    | quirky         |
+| 138446  | 55999   | Mr. Magorium's Wonder Emporium (2007)           | Children\|Comedy\|Fantasy     | 2.5    | sad            |
+| 138472  | 923     | Citizen Kane (1941)                              | Drama\|Mystery                | 3.0    | rise to power  |
+
 391444 rows × 6 columns
-```
+
 Dengan menghapus baris yang memiliki nilai NaN pada kolom 'tag', dataset sekarang lebih bersih dan siap untuk analisis yang membutuhkan informasi tag. Namun, perlu diingat bahwa ini juga berarti data yang tersisa mungkin tidak lagi merepresentasikan keseluruhan dataset awal, karena sebagian besar data telah dibuang. Analisis selanjutnya hanya akan berlaku untuk subset data yang memiliki tag. Hal ini penting untuk dipertimbangkan agar tidak menarik kesimpulan yang salah mengenai keseluruhan perilaku pengguna atau popularitas film jika hanya menggunakan data ini.
 
 - Cek dan Bersihkan Duplikat
