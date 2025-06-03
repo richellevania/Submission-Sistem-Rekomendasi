@@ -517,17 +517,19 @@ Meskipun kode yang diberikan hanya menampilkan struktur model, untuk menjelaskan
 
 ```
 Epoch 1/20
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1090s 4ms/step - loss: 0.0653 - mae: 0.1844 - val_loss: 0.0426 - val_mae: 0.1512
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1082s 4ms/step - loss: 0.0655 - mae: 0.1846 - val_loss: 0.0426 - val_mae: 0.1512
 Epoch 2/20
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1120s 4ms/step - loss: 0.0422 - mae: 0.1502 - val_loss: 0.0425 - val_mae: 0.1506
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1090s 4ms/step - loss: 0.0422 - mae: 0.1503 - val_loss: 0.0424 - val_mae: 0.1507
 Epoch 3/20
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1100s 4ms/step - loss: 0.0421 - mae: 0.1498 - val_loss: 0.0424 - val_mae: 0.1504
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1121s 4ms/step - loss: 0.0421 - mae: 0.1498 - val_loss: 0.0424 - val_mae: 0.1505
 Epoch 4/20
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1096s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1073s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1504
 Epoch 5/20
 250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1100s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
 Epoch 6/20
-250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1075s 4ms/step - loss: 0.0421 - mae: 0.1497 - val_loss: 0.0424 - val_mae: 0.1505
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1133s 4ms/step - loss: 0.0420 - mae: 0.1497 - val_loss: 0.0425 - val_mae: 0.1505
+Epoch 7/20
+250004/250004 ━━━━━━━━━━━━━━━━━━━━ 1062s 4ms/step - loss: 0.0421 - mae: 0.1498 - val_loss: 0.0424 - val_mae: 0.1505
 ```
 Output menunjukkan kemajuan pelatihan per epoch:
 
@@ -616,7 +618,7 @@ Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kat
 
 **Output Rekomendasi Film**
 
-![Output Rekomendasi](Output_Rekomendasi.png)
+![Output Hasil Rekomendasi](Output_Hasil_Rekomendasi.png)
 
 Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
 
