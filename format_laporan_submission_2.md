@@ -404,8 +404,8 @@ Output ini menujukkan bahwa berhasil mengorganisir hasil perhitungan cosine simi
  - **Format Input** sistem menyiapkan data yang dibutuhkan untuk menghasilkan rekomendasi film bagi seorang pengguna dengan pendekatan Collaborative Filtering. Proses dimulai dengan memilih salah satu pengguna secara acak, lalu sistem mengidentifikasi film-film yang belum pernah ditonton oleh pengguna tersebut.
 
 ## Modeling
-#### Model Development Content Based Filtering
-####Fungsi Rekomendasi
+### Model Development Content Based Filtering
+#### Fungsi Rekomendasi
 ```
 def movie_recommendations(judul_film, similarity_data=cosine_sim_df, items=movies[['title', 'genres']], k=5):
     """
