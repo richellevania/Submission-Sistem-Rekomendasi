@@ -311,7 +311,7 @@ Hampir semua kolom (userId, movieId, title, genres, rating) tidak memiliki nilai
 
 - Membersihkan Missing Value
 
-#### 5 Baris Awal
+**5 Baris Awal**
 
 | userId | movieId | title                                               | genres                             | rating | tag         |
 |--------|---------|------------------------------------------------------|------------------------------------|--------|-------------|
@@ -321,7 +321,7 @@ Hampir semua kolom (userId, movieId, title, genres, rating) tidak memiliki nilai
 | 65     | 58652   | CJ7 (Cheung Gong 7 hou) (2008)                        | Children\|Comedy\|Sci-Fi           | 5.0    | cute        |
 | 65     | 58652   | CJ7 (Cheung Gong 7 hou) (2008)                        | Children\|Comedy\|Sci-Fi           | 5.0    | emotional   |
 
-#### 5 Baris Akhir
+**5 Baris Akhir**
 
 | userId  | movieId | title                                           | genres                        | rating | tag            |
 |---------|---------|--------------------------------------------------|-------------------------------|--------|----------------|
