@@ -7,3 +7,5 @@
 ![Output_Matriks_Similiarity](https://github.com/user-attachments/assets/09373048-d1d2-48db-89f7-fbc8bf97147a)
 ![Output_Detail](https://github.com/user-attachments/assets/aca1cffe-e474-49e0-9878-79695ef0a815)
 ![Output_Matriks](https://github.com/user-attachments/assets/f59d0baf-a4f9-4f95-a98c-73d2188281db)
+![Detail_Rekomendasi](https://github.com/user-attachments/assets/d5540567-e475-4b07-8014-5e9890ba9222)
+![Output_Rekomendasi](https://github.com/user-attachments/assets/e5742dbb-0156-435e-9cbb-8e92ba9263b5)
