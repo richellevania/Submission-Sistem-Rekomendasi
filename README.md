@@ -1,6 +1,5 @@
 ![Visualisasi_Rating_Film_Terbanyak](https://github.com/user-attachments/assets/f73cbb21-e076-48f2-b4c2-347226789921)
 ![Visualisasi_Pengguna_Paling_Aktif](https://github.com/user-attachments/assets/b9c20af4-331d-4332-9773-94a23f1ffaa1)
-![Visualisasi_Collaborative_Filtering](https://github.com/user-attachments/assets/5b921303-6863-45ea-802e-a05161ce39a8)
 ![Metrics](https://github.com/user-attachments/assets/928fc0fb-2c75-4309-aca6-476585c2c9a6)
 ![Distribusi_Tag](https://github.com/user-attachments/assets/ca683724-e646-400d-b517-1cf08a272580)
 ![Distribusi_Genre_Film](https://github.com/user-attachments/assets/d39ec9b4-8d28-470f-b295-581dbfae6eeb)
