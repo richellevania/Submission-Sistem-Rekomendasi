@@ -298,6 +298,7 @@ Output final_data.head() menunjukkan lima baris pertama dari dataframe yang diha
 
 ## Data Preparation
 - Cek Missing Values
+
 | Kolom   | Jumlah Missing Values |
 |---------|------------------------|
 | userId  | 0                      |
@@ -435,15 +436,40 @@ Efisien karena memakai argpartition untuk pencarian cepat dan langsung menggabun
 #### Penggunaan Rekomendasi
 **Output Detail Film**
 
-![Output Detail ](Output_Detail.png)
+|     | movieId | Title                                        | Genres                                                       |
+|-----|---------|----------------------------------------------|--------------------------------------------------------------|
+| 0   | 5218    | Ice Age (2002)                               | Adventure Animation Children Comedy                          |
+| 1   | 44022   | Ice Age 2: The Meltdown (2006)               | Adventure Animation Children Comedy                          |
+| 2   | 69644   | Ice Age: Dawn of the Dinosaurs (2009)        | Action Adventure Animation Children Comedy Romance Sci-Fi    |
+
 
 Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
 
 **Output Rekomendasi Film**
 
-![Output Hasil Rekomendasi](Output_Hasil_Rekomendasi.png)
+|    | Title                                                           | Genres                                |
+|----|-----------------------------------------------------------------|----------------------------------------|
+| 0  | Horton Hears a Who! (2008)                                      | Adventure Animation Children Comedy    |
+| 1  | Wallace & Gromit in The Curse of the Were-Rabbit (2005)         | Adventure Animation Children Comedy    |
+| 2  | Over the Hedge (2006)                                           | Adventure Animation Children Comedy    |
+| 3  | Ice Age 2: The Meltdown (2006)                                  | Adventure Animation Children Comedy    |
+| 4  | Rio (2011)                                                      | Adventure Animation Children Comedy    |
+| 5  | Curious George (2006)                                           | Adventure Animation Children Comedy    |
+| 6  | Finding Nemo (2003)                                             | Adventure Animation Children Comedy    |
+| 7  | Bug's Life, A (1998)                                            | Adventure Animation Children Comedy    |
+| 8  | Madagascar (2005)                                               | Adventure Animation Children Comedy    |
+| 9  | 101 Dalmatians (One Hundred and One Dalmatians) (1961)          | Adventure Animation Children           |
 
-Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
+Model rekomendasi berhasil mengidentifikasi 10 film teratas yang memiliki kemiripan dengan "Ice Age (2002)". Dari daftar tersebut, terlihat bahwa rekomendasi didominasi oleh film-film dengan genre yang serupa, yaitu Adventure, Animation, Children, dan Comedy. Ini menunjukkan bahwa sistem rekomendasi bekerja dengan baik dalam menemukan item yang memiliki karakteristik genre yang sama.
+
+**Analisis Rekomendasi:**
+
+1. Konsistensi Genre: Hampir semua film yang direkomendasikan memiliki kombinasi genre yang sama dengan "Ice Age (2002)", yang merupakan film petualangan animasi untuk anak-anak dengan sentuhan komedi. Ini mengindikasikan bahwa model cenderung merekomendasikan film-film dalam kategori yang familiar bagi penggemar film tersebut.
+2. Kehadiran Sekuel: "Ice Age 2: The Meltdown (2006)" muncul di posisi keempat. Kehadiran sekuel dalam daftar rekomendasi adalah hal yang sangat wajar dan diinginkan dalam sistem rekomendasi karena penggemar film pertama seringkali tertarik pada kelanjutan ceritanya. Ini menunjukkan kemampuan model untuk mengidentifikasi hubungan antar-film yang kuat.
+3. Film Animasi Populer Lainnya: Daftar ini juga mencakup film-film animasi populer dari berbagai studio seperti "Horton Hears a Who! (2008)", "Finding Nemo (2003)", "Rio (2011)", "Madagascar (2005)", dan "Over the Hedge (2006)". Ini menunjukkan bahwa model mampu menangkap preferensi umum terhadap film animasi berkualitas tinggi dalam genre yang sama.
+4. Variasi Tahun Rilis: Rekomendasi mencakup film-film dari berbagai tahun rilis (misalnya, 1998 hingga 2011), yang menunjukkan bahwa model tidak hanya terpaku pada film-film terbaru atau tertua, melainkan mencari kemiripan berdasarkan fitur-fitur yang lebih substansial.
+
+Secara keseluruhan, hasil rekomendasi ini menunjukkan bahwa model bekerja secara efektif dalam mengidentifikasi film-film yang relevan dan menarik bagi penonton "Ice Age (2002)" berdasarkan kemiripan genre dan kemungkinan preferensi umum terhadap film animasi anak-anak yang bersifat petualangan dan komedi.
 
 ### Model Development dengan Collaborative Filtering
 #### Membangun Model Collaborative Filtering
@@ -790,17 +816,20 @@ Daftar Rekomendasi:
 10. Flatliners (1990)
 ========================================
 ```
-- Tujuan output ini untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
 
-- Penjelasan Metrik Precision@K:
-  - K: Menunjukkan jumlah rekomendasi teratas yang dievaluasi. Dalam contoh ini, K adalah 10.
-  - Hits: Jumlah film dalam rekomendasi teratas (K film) yang sebenarnya disukai oleh pengguna (yaitu, film yang sudah mereka tonton dan beri rating tinggi, atau film yang sudah ada dalam daftar "disukai" mereka).
-  - Precision@K: Dihitung sebagai Hits / K. Semakin tinggi nilainya, semakin baik sistem rekomendasi tersebut.
+Tujuan: Kode ini bertujuan untuk mengukur "Precision@K" dari sebuah sistem rekomendasi film. Precision@K adalah metrik yang digunakan untuk mengevaluasi seberapa baik sistem rekomendasi dalam memberikan rekomendasi yang relevan kepada pengguna. Secara khusus, kode ini berfokus pada rekomendasi film.
 
-- Kesimpulan Utama:
-  - Sistem rekomendasi ini sedang dievaluasi pada kemampuannya untuk merekomendasikan film yang sudah terbukti disukai oleh pengguna, bukan untuk merekomendasikan film baru yang belum pernah mereka tonton.
-  - Metrik Precision@K digunakan untuk kuantifikasi.
-  - Ada variasi kinerja yang signifikan antara pengguna yang berbeda (Pengguna 1 memiliki Precision@10 0.1, sementara Pengguna 118205 memiliki Precision@10 0.3). Hal ini menunjukkan bahwa sistem mungkin bekerja lebih baik untuk beberapa pengguna daripada yang lain, atau data pengguna untuk beberapa pengguna lebih "mudah" untuk direkomendasikan.
+1. Perbedaan Preferensi Pengguna:
+  - User 1 hanya menyukai 1 dari 10 rekomendasi, menunjukkan sistem belum memahami preferensi kontennya dengan baik.
+  - User 118285 menyukai 5 dari 10 rekomendasi, menandakan sistem sudah lebih cocok dengan profil pengguna ini.
+
+2. Kualitas Profil Pengguna:
+  - User dengan interaksi historis yang lebih banyak atau lebih jelas (seperti 118285) cenderung menghasilkan rekomendasi yang lebih tepat sasaran.
+  - Ini mengindikasikan pentingnya data historis yang cukup untuk menghasilkan rekomendasi yang baik dalam pendekatan content-based.
+
+3. Evaluasi Precision:
+  - Precision@10 sebesar 0.10 berarti hanya 10% dari rekomendasi yang relevan → performa rendah.
+  - Precision@10 sebesar 0.50 berarti 50% dari rekomendasi relevan → performa cukup baik.
 
 **Visualisasi Collaborative Filtering**
 
@@ -933,21 +962,6 @@ $$
 * $n_t$: jumlah dokumen yang mengandung kata $t$
 * **Makna:** kata yang muncul di sedikit dokumen dianggap lebih penting
 
-#### 6. **Cosine Similarity**
-
-Cosine similarity mengukur **kemiripan antara dua vektor**.
-
-$$
-\text{cosine\_similarity}(A, B) = \frac{A \cdot B}{\|A\| \times \|B\|}
-$$
-
-* $A \cdot B$: **dot product** dua vektor
-* $\|A\|$, $\|B\|$: **panjang (norma)** masing-masing vektor
-* Nilai berkisar antara:
-
-  * **1**: identik (sudut 0°)
-  * **0**: tidak mirip (sudut 90°)
-  * **< 0**: berlawanan (jarang terjadi di TF-IDF)
 
 ## Kesimpulan
 
