@@ -403,7 +403,8 @@ Output ini menujukkan bahwa berhasil mengorganisir hasil perhitungan cosine simi
  - **Membagi Data untuk Training dan Validasi** untuk memastikan kualitas dan keandalan model machine learning yang akan dibangun. Pengacakan data yang dilakukan dengan df.sample(frac=1, random_state=42) adalah praktik terbaik untuk menyiapkan data sebelum pembagian menjadi set pelatihan dan validasi, terutama untuk dataset yang sangat besar seperti ini. Mendefinisikan fitur (x) dan label (y), serta melakukan pembagian data menjadi set pelatihan (train) dan validasi (val). Selain itu, nilai rating dinormalisasi.
  - **Format Input** sistem menyiapkan data yang dibutuhkan untuk menghasilkan rekomendasi film bagi seorang pengguna dengan pendekatan Collaborative Filtering. Proses dimulai dengan memilih salah satu pengguna secara acak, lalu sistem mengidentifikasi film-film yang belum pernah ditonton oleh pengguna tersebut.
 
-## Model Development Content Based Filtering
+## Modeling
+#### Model Development Content Based Filtering
 - Fungsi Rekomendasi
 ```
 def movie_recommendations(judul_film, similarity_data=cosine_sim_df, items=movies[['title', 'genres']], k=5):
@@ -431,8 +432,21 @@ Fungsi movie_recommendations() merekomendasikan film berdasarkan kemiripan genre
 - Mengembalikan k film terdekat beserta judul dan genre-nya
 Efisien karena memakai argpartition untuk pencarian cepat dan langsung menggabungkan hasil dengan metadata film.
 
-## Model Development dengan Collaborative Filtering
-### Membangun Model Collaborative Filtering
+#### Penggunaan Rekomendasi
+**Output Detail Film**
+
+![Output Detail ](Output_Detail.png)
+
+Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
+
+**Output Rekomendasi Film**
+
+![Output Hasil Rekomendasi](Output_Hasil_Rekomendasi.png)
+
+Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
+
+### Model Development dengan Collaborative Filtering
+#### Membangun Model Collaborative Filtering
 ```
 class RecommenderNet(tf.keras.Model):
     def __init__(self, num_users, num_movies, embedding_size=50, **kwargs):
@@ -570,23 +584,7 @@ Dari *output* pelatihan yang ditampilkan, terlihat bahwa:
 * *val_loss* dan *val_mae* juga menunjukkan pola penurunan dan stabilisasi, yang menandakan model belajar dengan baik tanpa *overfitting* yang signifikan di awal.
 * Waktu per *step* (`4ms/step`) konsisten, menunjukkan efisiensi pelatihan.
 
-### Penggunaan Rekomendasi
-
-**1. Content-Based Recommendation**
-
-**Output Detail Film**
-
-![Output Detail ](Output_Detail.png)
-
-Memfilter dataset film (movies) guna menampilkan detail film yang mengandung kata "Ice Age" di dalam judulnya, tanpa membedakan huruf besar atau kecil (case=False). Hasil dari filtering ini adalah sebuah tabel yang menunjukkan tiga film dalam franchise "Ice Age": "Ice Age (2002)", "Ice Age 2: The Meltdown (2006)", dan "Ice Age: Dawn of the Dinosaurs (2009)". Untuk setiap film, ditampilkan movieId, title, dan genres yang terkait, menunjukkan bahwa ketiga film tersebut memiliki genre dasar "Adventure", "Animation", dan "Children Comedy", dengan "Ice Age: Dawn of the Dinosaurs" juga memiliki genre "Action" dan "Romance".
-
-**Output Rekomendasi Film**
-
-![Output Hasil Rekomendasi](Output_Hasil_Rekomendasi.png)
-
-Fungsi movie_recommendations untuk mendapatkan 5 rekomendasi film yang mirip dengan "Ice Age (2002)". Hasilnya menunjukkan daftar film yang sebagian besar berada dalam genre "Adventure Animation Children Comedy", sama dengan genre "Ice Age (2002)". Ini mengindikasikan bahwa sistem rekomendasi bekerja dengan baik dalam mengidentifikasi film-film sejenis berdasarkan kemiripan genre, karena film-film seperti "Horton Hears a Who! (2008)", "Wallace & Gromit in The Curse of the Were-Rabbit...", "Ice Age 2: The Meltdown (2006)", "Over the Hedge (2006)", dan "Rio (2011)" semuanya cocok dengan profil genre film anak-anak animasi petualangan.
-
-**2. Collaborative Filtering Recommendation**
+#### Penggunaan Rekomendasi
 **Prediksi Rating dan Rekomendasi Film**
 
 ```
