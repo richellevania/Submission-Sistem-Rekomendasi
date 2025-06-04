@@ -888,7 +888,6 @@ $$
 * $K$: jumlah item yang direkomendasikan (misalnya 10)
 * $\text{hits}$: jumlah item di antara 10 rekomendasi yang memang disukai pengguna (berdasarkan histori rating tinggi)
 
-## Kesimpulan
 
 | Komponen         | Penjelasan                                                        |
 | ---------------- | ----------------------------------------------------------------- |
@@ -914,7 +913,7 @@ $$
 \text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
 $$
 
-### a. **TF – Term Frequency**
+##### a. **TF – Term Frequency**
 
 $$
 \text{TF}(t, d) = \frac{f_{t,d}}{\sum_{k} f_{k,d}}
@@ -924,7 +923,7 @@ $$
 * Penyebut: total jumlah kata dalam dokumen
 * **Makna:** seberapa sering kata muncul dalam dokumen tersebut
 
-### b. **IDF – Inverse Document Frequency**
+#### b. **IDF – Inverse Document Frequency**
 
 $$
 \text{IDF}(t) = \log \left( \frac{N}{n_t} \right)
