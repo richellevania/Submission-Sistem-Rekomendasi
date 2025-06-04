@@ -405,7 +405,7 @@ Output ini menujukkan bahwa berhasil mengorganisir hasil perhitungan cosine simi
 
 ## Modeling
 #### Model Development Content Based Filtering
-- Fungsi Rekomendasi
+####Fungsi Rekomendasi
 ```
 def movie_recommendations(judul_film, similarity_data=cosine_sim_df, items=movies[['title', 'genres']], k=5):
     """
