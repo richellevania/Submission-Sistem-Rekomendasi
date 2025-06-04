@@ -539,7 +539,7 @@ Meskipun kode yang diberikan hanya menampilkan struktur model, untuk menjelaskan
     * **Batch Size:** Jumlah sampel yang akan diproses sebelum bobot model diperbarui.
     * **Strategi Evaluasi:** Bagaimana model akan dievaluasi selama atau setelah pelatihan (misalnya, menggunakan set validasi).
  
-### Compile dan Train Model
+#### Compile dan Train Model
 
 ```
 Epoch 1/20
