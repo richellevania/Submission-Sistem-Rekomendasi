@@ -570,7 +570,7 @@ Dari *output* pelatihan yang ditampilkan, terlihat bahwa:
 * *val_loss* dan *val_mae* juga menunjukkan pola penurunan dan stabilisasi, yang menandakan model belajar dengan baik tanpa *overfitting* yang signifikan di awal.
 * Waktu per *step* (`4ms/step`) konsisten, menunjukkan efisiensi pelatihan.
 
-## Penggunaan Rekomendasi
+### Penggunaan Rekomendasi
 
 **1. Content-Based Recommendation**
 
