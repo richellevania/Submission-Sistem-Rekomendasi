@@ -923,7 +923,7 @@ $$
 * Penyebut: total jumlah kata dalam dokumen
 * **Makna:** seberapa sering kata muncul dalam dokumen tersebut
 
-#### b. **IDF – Inverse Document Frequency**
+##### b. **IDF – Inverse Document Frequency**
 
 $$
 \text{IDF}(t) = \log \left( \frac{N}{n_t} \right)
