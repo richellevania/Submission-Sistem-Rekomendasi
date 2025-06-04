@@ -4,3 +4,5 @@
 ![Distribusi_Tag](https://github.com/user-attachments/assets/ca683724-e646-400d-b517-1cf08a272580)
 ![Distribusi_Genre_Film](https://github.com/user-attachments/assets/d39ec9b4-8d28-470f-b295-581dbfae6eeb)
 ![Distribusi_Rating](https://github.com/user-attachments/assets/17582baf-6122-4ac8-91f9-05905328e48e)
+![Output_Matriks_Similiarity](https://github.com/user-attachments/assets/09373048-d1d2-48db-89f7-fbc8bf97147a)
+![Output_Detail](https://github.com/user-attachments/assets/aca1cffe-e474-49e0-9878-79695ef0a815)
