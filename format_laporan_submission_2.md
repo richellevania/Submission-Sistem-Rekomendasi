@@ -369,7 +369,24 @@ Kode ini melakukan **penyaringan dan pengambilan sampel data film** dari dataset
 
   4. Mereset indeks DataFrame `movies` agar rapi dan siap digunakan untuk proses vektorisasi atau manipulasi lanjutan.
 
-Output setelah pembersihan data genre dan inisiasi - Fitting TF-IDF Vectorizer
+* ** Pembersihan kolom genres **
+
+```
+# Bersihkan data genre
+movies['genres'] = movies['genres'].replace('(no genres listed)', '', regex=False).str.replace('|', ' ', regex=False)
+
+# Inisialisasi TF-IDF Vectorizer
+tfv = TfidfVectorizer()
+
+# Fit TF-IDF ke genre
+tfv.fit(movies['genres'])
+
+# Lihat fitur genre
+tfv.get_feature_names_out()
+
+```
+
+Output:
 
 ```
 array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
@@ -377,21 +394,79 @@ array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
        'musical', 'mystery', 'noir', 'romance', 'sci', 'thriller', 'war',
        'western'], dtype=object)
 ```
-Langkah ini menyiapkan data genre untuk diubah menjadi format numerik yang dapat digunakan oleh model Content Based Filtering. TF-IDF akan memberikan bobot pada setiap genre untuk setiap film, mencerminkan seberapa penting genre tersebut bagi film tertentu dalam konteks seluruh koleksi film. Ini adalah langkah krusial dalam membangun representasi konten film.
+1. Pembersihan Data Genre: Baris kode pertama movies['genres'] = movies['genres'].replace('(no genres listed)', '', regex=False).str.replace('|', ',', regex=False) bertujuan untuk membersihkan data pada kolom 'genres'.
+  - replace('(no genres listed)', '', regex=False): Ini mengganti string "(no genres listed)" dengan string kosong. Hal ini penting karena "(no genres listed)" adalah placeholder yang tidak relevan untuk analisis konten dan dapat mengganggu proses vectorization.
+  - str.replace('|', ',', regex=False): Ini mengganti karakter | (yang biasa digunakan untuk memisahkan genre) dengan koma ,. Tujuan dari penggantian ini kemungkinan untuk memformat ulang string genre agar lebih mudah diurai atau diproses oleh TfidfVectorizer, meskipun TfidfVectorizer biasanya dapat menangani string dengan spasi sebagai pemisah default. Jika ini bertujuan untuk menggabungkan genre yang dipisahkan oleh | menjadi satu string dengan pemisah koma, maka ini akan menciptakan "token" yang berbeda untuk setiap genre yang dipisahkan oleh koma.
+
+2. Inisialisasi dan Fitting TF-IDF Vectorizer:
+  - tfv = TfidfVectorizer(): Sebuah objek TfidfVectorizer diinisialisasi. TF-IDF (Term Frequency-Inverse Document Frequency) adalah teknik yang digunakan untuk mengubah teks menjadi representasi numerik, di mana setiap kata atau "term" diberi bobot berdasarkan seberapa sering muncul dalam dokumen (film) dan seberapa unik kata tersebut di seluruh korpus (semua film).
+  - tfv.fit(movies['genres']): Vectorizer ini kemudian "dilatih" (fitted) pada kolom 'genres' dari dataframe movies. Proses fit ini mempelajari semua genre unik (atau "term") yang ada di seluruh dataset dan membangun kosakata internalnya.
+
+3. Ekstraksi Fitur Genre:
+  - tfv.get_feature_names_out(): Setelah fit, fungsi ini dipanggil untuk melihat daftar fitur (yaitu, genre unik) yang telah dipelajari oleh TfidfVectorizer. Outputnya adalah array yang berisi semua genre yang terdeteksi, seperti 'action', 'adventure', 'animation', 'children', 'comedy', dll.
+
+Secara keseluruhan, langkah-langkah ini menyiapkan data genre untuk diubah menjadi format numerik yang dapat digunakan oleh model Content Based Filtering. TF-IDF akan memberikan bobot pada setiap genre untuk setiap film, mencerminkan seberapa penting genre tersebut bagi film tertentu dalam konteks seluruh koleksi film. Ini adalah langkah krusial dalam membangun representasi konten film.
 
 Output setelah mengubah representasi fitur teks menjadi matriks numerik
 
-![Output Matriks ](Output_Matriks.png)
+| Title                                         | imax     | noir | drama   | horror  | children |
+|----------------------------------------------|----------|------|---------|---------|----------|
+| Harry Potter and the Half-Blood Prince (2009)| 0.569092 | 0.0  | 0.000000| 0.000000| 0.0      |
+| Harlan County U.S.A. (1976)                  | 0.000000 | 0.0  | 0.000000| 0.000000| 0.0      |
+| Man on Fire (2004)                           | 0.000000 | 0.0  | 0.287479| 0.000000| 0.0      |
+| Annie Hall (1977)                            | 0.000000 | 0.0  | 0.000000| 0.000000| 0.0      |
+| Paprika (Papurika) (2006)                    | 0.000000 | 0.0  | 0.000000| 0.000000| 0.0      |
+| Velvet Goldmine (1998)                       | 0.000000 | 0.0  | 1.000000| 0.000000| 0.0      |
+| Halloween III: Season of the Witch (1982)    | 0.000000 | 0.0  | 0.000000| 1.000000| 0.0      |
+| Blair Witch Project, The (1999)              | 0.000000 | 0.0  | 0.388570| 0.745128| 0.0      |
+| Alamo, The (1960)                            | 0.000000 | 0.0  | 0.238976| 0.000000| 0.0      |
+| Pay It Forward (2000)                        | 0.000000 | 0.0  | 1.000000| 0.000000| 0.0      |
+
 
 Output ini menujukkan bahwa berhasil mengubah data tekstual (genre/fitur) menjadi representasi numerik yang terstruktur dan siap digunakan untuk analisis lebih lanjut dalam pengembangan model rekomendasi berbasis konten. Output tabel dengan skor TF-IDF per film dan per fitur adalah langkah penting dalam membangun matriks kesamaan item atau profil pengguna.
 
 * **Cosine Similarity**
 
-Output matriks similiarity
+Output matriks similiarity:
 
-![Output Matriks Similiarity ](Output_Matriks_Similiarity.png)
+Shape: (2500, 2500)
 
-Output ini menujukkan bahwa berhasil mengorganisir hasil perhitungan cosine similarity ke dalam format DataFrame yang sangat mudah digunakan dan diinterpretasikan. Dengan indeks dan kolom yang berisi judul film, matriks ini siap digunakan sebagai inti dari mesin rekomendasi berbasis konten. Ini memungkinkan identifikasi cepat film-film yang memiliki kemiripan konten tinggi, yang merupakan dasar untuk memberikan rekomendasi yang relevan kepada pengguna.
+| Title                                           | Zero Effect (1998) | Badlands (1973) | Far Side of the Moon, The (2003) | Face cachée de la lune, La (2003) | Muppet Movie, The (1979) | Quantum of Solace (2008) |
+|------------------------------------------------|---------------------|------------------|-----------------------------------|------------------------------------|----------------------------|---------------------------|
+| Witness for the Prosecution (1957)             | 0.830105            | 0.455965         | 0.370868                          | 0.000000                           | 0.000000                   | 0.284065                  |
+| Shoot the Piano Player (Tirez sur le pianiste) | 0.243072            | 0.834683         | 0.343564                          | 0.000000                           | 0.000000                   | 0.259615                  |
+| D.C.H. (Dil Chahta Hai) (2001)                 | 0.343381            | 0.280674         | 0.633302                          | 0.000000                           | 0.239678                   | 0.000000                  |
+| Little Giants (1994)                           | 0.210789            | 0.000000         | 0.000000                          | 0.000000                           | 0.652875                   | 0.000000                  |
+| Full Metal Jacket (1987)                       | 0.000000            | 0.164516         | 0.396888                          | 0.000000                           | 0.000000                   | 0.000000                  |
+| Aileen: Life and Death of a Serial Killer (2003)| 0.000000           | 0.000000         | 0.000000                          | 0.000000                           | 0.000000                   | 0.000000                  |
+| X-Men: First Class (2011)                      | 0.167117            | 0.191865         | 0.000000                          | 0.000000                           | 0.156893                   | 0.084979                  |
+| Robin Hood: Men in Tights (1993)               | 0.444320            | 0.000000         | 0.000000                          | 0.000000                           | 0.309700                   | 0.000000                  |
+| First Snow (2006)                               | 0.412214            | 0.706487         | 0.582833                          | 0.000000                           | 0.000000                   | 0.440098                  |
+| Superman (1978)                                 | 0.000000            | 0.000000         | 0.000000                          | 0.000000                           | 0.202833                   | 0.568143                  |
+
+
+* **Tujuan:** Kode ini melanjutkan proses pembuatan matriks kemiripan antar film dengan mengubah matriks `cosine_sim` (yang sebelumnya dihasilkan sebagai array NumPy) menjadi Pandas DataFrame. Tujuannya adalah untuk memberikan indeks dan nama kolom yang lebih mudah dibaca (yaitu, judul film), sehingga mempermudah analisis dan penggunaan matriks kemiripan ini.
+* **Transformasi menjadi DataFrame:**
+    * `cosine_sim_df = pd.DataFrame(cosine_sim, ...)`: Matriks `cosine_sim` diubah menjadi DataFrame.
+    * `index=movies['title']`: Setiap baris DataFrame diberi indeks berupa judul film. Ini sangat membantu untuk mencari kemiripan film tertentu.
+    * `columns=movies['title']`: Setiap kolom DataFrame diberi nama berupa judul film. Ini membuat matriks kemiripan sangat intuitif untuk dibaca, karena Anda bisa langsung melihat kemiripan antara dua film berdasarkan judulnya.
+* **Pengecekan Ukuran:** `print('Shape: ', cosine_sim_df.shape)` kembali mengkonfirmasi bahwa DataFrame memiliki ukuran `(2500, 2500)`, sesuai dengan jumlah film yang ada.
+* **Sampling Tampilan:** `cosine_sim_df.sample(10, axis=0).sample(5, axis=1)` adalah cara cerdas untuk melihat sebagian kecil dari matriks kemiripan yang besar.
+    * `sample(10, axis=0)`: Mengambil 10 baris (film) acak.
+    * `sample(5, axis=1)`: Kemudian, dari 10 baris tersebut, hanya menampilkan 5 kolom (film) acak. Ini sangat berguna untuk mendapatkan gambaran sekilas tanpa harus melihat seluruh matriks 2500x2500.
+
+
+1.  **Kemudahan Interpretasi:** Tabel yang ditampilkan adalah sampel dari matriks kemiripan. Setiap sel menunjukkan skor kemiripan (cosine similarity) antara film pada indeks baris dengan film pada nama kolom.
+    * **Contoh:** Untuk film "Glimmer Man, The (1996)", kemiripannya dengan "Three Musketeers, The (1973)" adalah 0.415790, dan dengan "Source Code (2011)" adalah 0.514665.
+2.  **Nilai Nol (0.000000):** Banyak sel yang bernilai 0.000000. Ini berarti tidak ada kemiripan konten yang terdeteksi antara dua film tersebut berdasarkan fitur TF-IDF yang digunakan. Ini bisa terjadi karena:
+    * Film-film tersebut tidak memiliki genre atau tag yang sama.
+    * Vektor TF-IDF mereka saling tegak lurus (tidak ada kesamaan).
+3.  **Variasi Skor Kemiripan:** Skor kemiripan bervariasi dari 0 hingga sekitar 0.73 (seperti antara "Starship Troopers (1997)" dan "Source Code (2011)"). Skor yang lebih tinggi menunjukkan kesamaan konten yang lebih besar.
+4.  **Basis Rekomendasi yang Jelas:** DataFrame ini secara langsung menjadi alat utama untuk merekomendasikan film. Jika seorang pengguna menyukai "Source Code (2011)", kita dapat mencari kolom "Source Code (2011)" dan mengurutkan film-film lain berdasarkan skor kemiripan tertinggi untuk merekomendasikan film serupa.
+
+**Kesimpulan:**
+
+Langkah ini berhasil mengorganisir hasil perhitungan cosine similarity ke dalam format DataFrame yang sangat mudah digunakan dan diinterpretasikan. Dengan indeks dan kolom yang berisi judul film, matriks ini siap digunakan sebagai inti dari mesin rekomendasi berbasis konten. Ini memungkinkan identifikasi cepat film-film yang memiliki kemiripan konten tinggi, yang merupakan dasar untuk memberikan rekomendasi yang relevan kepada pengguna.
 
 ### Preparation untuk Collaborative Filtering
 - **Encode userid** bertujuan untuk melakukan encoding pada userId yang ada di DataFrame. Artinya, setiap userId unik akan dipetakan ke dalam bentuk integer berurutan (misalnya, dari 0 hingga N-1, di mana N adalah jumlah pengguna unik). Ini adalah langkah umum dalam sistem rekomendasi, terutama ketika mempersiapkan data untuk model yang memerlukan input numerik atau ketika bekerja dengan ID yang tidak berurutan.
@@ -1007,18 +1082,12 @@ Hal ini menunjukkan bahwa performa CBF cukup fluktuatif dan belum seakurat CF da
 
 Berdasarkan hasil evaluasi, **Collaborative Filtering** memberikan hasil terbaik dalam akurasi prediksi rating pengguna, terbukti dari nilai MAE dan MSE yang rendah. Meskipun Content-Based Filtering masih relevan terutama untuk menangani cold-start problem, pendekatan CF lebih unggul secara keseluruhan.
 
-![Visualisasi_Rating_Film_Terbanyak](https://github.com/user-attachments/assets/f73cbb21-e076-48f2-b4c2-347226789921)
-![Visualisasi_Pengguna_Paling_Aktif](https://github.com/user-attachments/assets/b9c20af4-331d-4332-9773-94a23f1ffaa1)
-![Metrics](https://github.com/user-attachments/assets/928fc0fb-2c75-4309-aca6-476585c2c9a6)
-![Distribusi_Tag](https://github.com/user-attachments/assets/ca683724-e646-400d-b517-1cf08a272580)
 ![Distribusi_Genre_Film](https://github.com/user-attachments/assets/d39ec9b4-8d28-470f-b295-581dbfae6eeb)
 ![Distribusi_Rating](https://github.com/user-attachments/assets/17582baf-6122-4ac8-91f9-05905328e48e)
-![Output_Matriks_Similiarity](https://github.com/user-attachments/assets/09373048-d1d2-48db-89f7-fbc8bf97147a)
-![Output_Detail](https://github.com/user-attachments/assets/aca1cffe-e474-49e0-9878-79695ef0a815)
-![Output_Matriks](https://github.com/user-attachments/assets/f59d0baf-a4f9-4f95-a98c-73d2188281db)
-![Detail_Rekomendasi](https://github.com/user-attachments/assets/d5540567-e475-4b07-8014-5e9890ba9222)
-![Output_Rekomendasi](https://github.com/user-attachments/assets/e5742dbb-0156-435e-9cbb-8e92ba9263b5)
-
+![Visualisasi_Rating_Film_Terbanyak](https://github.com/user-attachments/assets/f73cbb21-e076-48f2-b4c2-347226789921)
+![Visualisasi_Pengguna_Paling_Aktif](https://github.com/user-attachments/assets/b9c20af4-331d-4332-9773-94a23f1ffaa1)
+![Distribusi_Tag](https://github.com/user-attachments/assets/ca683724-e646-400d-b517-1cf08a272580)
+![Metrics](https://github.com/user-attachments/assets/928fc0fb-2c75-4309-aca6-476585c2c9a6)
 
 
 
