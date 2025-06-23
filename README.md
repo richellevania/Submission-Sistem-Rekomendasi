@@ -1,11 +1,1 @@
-![Visualisasi_Rating_Film_Terbanyak](https://github.com/user-attachments/assets/f73cbb21-e076-48f2-b4c2-347226789921)
-![Visualisasi_Pengguna_Paling_Aktif](https://github.com/user-attachments/assets/b9c20af4-331d-4332-9773-94a23f1ffaa1)
-![Metrics](https://github.com/user-attachments/assets/928fc0fb-2c75-4309-aca6-476585c2c9a6)
-![Distribusi_Tag](https://github.com/user-attachments/assets/ca683724-e646-400d-b517-1cf08a272580)
-![Distribusi_Genre_Film](https://github.com/user-attachments/assets/d39ec9b4-8d28-470f-b295-581dbfae6eeb)
-![Distribusi_Rating](https://github.com/user-attachments/assets/17582baf-6122-4ac8-91f9-05905328e48e)
-![Output_Matriks_Similiarity](https://github.com/user-attachments/assets/09373048-d1d2-48db-89f7-fbc8bf97147a)
-![Output_Detail](https://github.com/user-attachments/assets/aca1cffe-e474-49e0-9878-79695ef0a815)
-![Output_Matriks](https://github.com/user-attachments/assets/f59d0baf-a4f9-4f95-a98c-73d2188281db)
-![Detail_Rekomendasi](https://github.com/user-attachments/assets/d5540567-e475-4b07-8014-5e9890ba9222)
-![Output_Rekomendasi](https://github.com/user-attachments/assets/e5742dbb-0156-435e-9cbb-8e92ba9263b5)
+
